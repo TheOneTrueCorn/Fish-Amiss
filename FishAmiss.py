@@ -1,7 +1,12 @@
 # starting pygame window
 import pygame
+<<<<<<< HEAD
 import vector
 import random
+=======
+import player
+
+>>>>>>> a064986b721e56bc8e6e4e382a37b2885c5138d0
 pygame.init()
 
 win_width = 1000
@@ -26,7 +31,9 @@ time = "day"
 
 
 clock = pygame.time.Clock()
+P = player.Player(win)
 
+<<<<<<< HEAD
 
 while True:
     delta_time = clock.tick() / 1000
@@ -79,6 +86,15 @@ while True:
     print(time)
 
     win.fill(current_time)
+=======
+done = False
+while not done:
+    delta_time = clock.tick() / 1000
+    done = P.handle_input(delta_time)
+
+    win.fill((0, 0, 0))
+    P.draw_player()
+>>>>>>> a064986b721e56bc8e6e4e382a37b2885c5138d0
 
     pygame.display.flip()
 pygame.quit()
