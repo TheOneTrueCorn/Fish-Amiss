@@ -1,12 +1,12 @@
 # starting pygame window
 import pygame
-<<<<<<< HEAD
+
 import vector
 import random
-=======
+
 import player
 
->>>>>>> a064986b721e56bc8e6e4e382a37b2885c5138d0
+
 pygame.init()
 
 win_width = 1000
@@ -29,18 +29,18 @@ night_check3 = 0
 
 time = "day"
 
-
-clock = pygame.time.Clock()
 P = player.Player(win)
+clock = pygame.time.Clock()
 
-<<<<<<< HEAD
-
-while True:
-    delta_time = clock.tick() / 1000
-    event = pygame.event.poll()
-    keys = pygame.key.get_pressed()
-
+def day_night():
     #day night cycle
+    global time
+    global day_check1
+    global day_check2
+    global day_check3
+    global night_check1
+    global night_check2
+    global night_check3
     if time == "day":
         current_time[0] += day_night_cycle[0] * delta_time / 30
         current_time[1] += day_night_cycle[1] * delta_time / 30
@@ -78,23 +78,17 @@ while True:
             night_check2 = 0
             night_check3 = 0
 
-    if keys[pygame.K_ESCAPE]:
-        break
-    if event.type == pygame.QUIT:
-        break
-
-    print(time)
-
     win.fill(current_time)
-=======
+
 done = False
 while not done:
     delta_time = clock.tick() / 1000
     done = P.handle_input(delta_time)
 
-    win.fill((0, 0, 0))
+    day_night()
+
     P.draw_player()
->>>>>>> a064986b721e56bc8e6e4e382a37b2885c5138d0
+
 
     pygame.display.flip()
 pygame.quit()
