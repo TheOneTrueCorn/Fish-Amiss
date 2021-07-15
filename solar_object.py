@@ -1,12 +1,17 @@
+import random
+
 import pygame
 import vector
 import math
+import random
 
 class backgroundObject:
     def __init__(self,x,y):
         self.start_pos = vector.Vector2(x, y)
         self.angle = -15
         self.rotation_speed = 360
+        self.sun_color = (random.randint(175,230),random.randint(25,100),random.randint(60,100))
+        self.moon_color = (random.randint(175, 230), random.randint(175, 230), random.randint(60, 100))
 
     def get_forward(self):
         radians = math.radians(self.angle)
@@ -28,14 +33,14 @@ class backgroundObject:
         p0 = (self.start_pos[0], self.start_pos[1])
         forward = self.get_forward()
         end = vector.Vector2(p0[0], p0[1]) + forward * dist
-        pygame.draw.circle(surf,(200,50,100),end,100)
+        pygame.draw.circle(surf,(self.sun_color),end,100)
 
     def alt_draw(self,surf,color):
         dist = 425
         p0 = (self.start_pos[0], self.start_pos[1])
         forward = -self.get_forward()
         end = vector.Vector2(p0[0], p0[1]) + forward * dist
-        pygame.draw.circle(surf,(200,200,100),end,80)
+        pygame.draw.circle(surf,(self.moon_color),end,80)
         pygame.draw.circle(surf, (color), (end[0]-20,end[1]), 61)
 
 
