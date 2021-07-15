@@ -1,5 +1,7 @@
 # starting pygame window
 import pygame
+import vector
+
 pygame.init()
 
 win_width = 1000
