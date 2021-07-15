@@ -3,7 +3,7 @@ import pygame
 
 import vector
 import random
-import fish
+import solar_object
 import player
 
 
@@ -30,6 +30,8 @@ night_check3 = 0
 time = "day"
 
 P = player.Player(win)
+sun = solar_object.backgroundObject(500,350)
+moon = solar_object.backgroundObject(500,350)
 
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
@@ -105,6 +107,15 @@ def day_night():
             day += 1
 
     win.fill(current_time)
+    sun.get_forward()
+    sun.update(delta_time)
+    sun.draw(win)
+    moon.get_forward()
+    moon.alt_update(delta_time)
+    moon.alt_draw(win,current_time)
+
+
+
 
 
 done = False
