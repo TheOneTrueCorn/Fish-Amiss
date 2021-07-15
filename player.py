@@ -5,7 +5,7 @@ import pygame
 class Player:
     def __init__(self, surf):
         self.radius = 50
-        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 200)
+        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 250)
         self.speed = 200
         self.surf = surf
 
