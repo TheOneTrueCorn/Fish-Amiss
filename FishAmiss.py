@@ -113,6 +113,7 @@ def day_night():
     moon.get_forward()
     moon.alt_update(delta_time)
     moon.alt_draw(win,current_time)
+    pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
 
 
 
