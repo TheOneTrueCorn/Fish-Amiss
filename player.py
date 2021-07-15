@@ -1,8 +1,8 @@
-# player class
+# player clas
 import vector
 import pygame
-
 class Player:
+
     def __init__(self, surf):
         self.radius = 50
         self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 250)
@@ -36,3 +36,5 @@ class Player:
 
     def draw_player(self):
         pygame.draw.rect(self.surf, "white", (self.pos.x, self.pos.y, self.radius, self.radius))
+
+

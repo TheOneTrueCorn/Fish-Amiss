@@ -30,7 +30,7 @@ night_check3 = 0
 time = "day"
 
 P = player.Player(win)
-<<<<<<< HEAD
+
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
 font_obj3 = pygame.font.SysFont("Courier New", 15)
@@ -53,7 +53,7 @@ def shop(win):
     pygame.draw.line(win, (255, 255, 255), (5, 120), (305, 120), 3)
     pygame.draw.line(win, (255, 255, 255), (150, 120), (150, 155), 3)
     pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 150), 3)
-=======
+
 clock = pygame.time.Clock()
 
 def day_night():
@@ -103,7 +103,7 @@ def day_night():
             night_check3 = 0
 
     win.fill(current_time)
->>>>>>> e3f9f1827936a4b5018d6cf18a0b16f4591f7f3f
+
 
 done = False
 while not done:
@@ -111,13 +111,13 @@ while not done:
     money += 1 * delta_time
     done = P.handle_input(delta_time)
 
-<<<<<<< HEAD
+
     win.fill((0, 0, 0))
     shop(win)
-=======
+
     day_night()
 
->>>>>>> e3f9f1827936a4b5018d6cf18a0b16f4591f7f3f
+
     P.draw_player()
 
 
