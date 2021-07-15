@@ -1,6 +1,6 @@
 # starting pygame window
 import pygame
-import vector
+import player
 
 pygame.init()
 
@@ -9,18 +9,15 @@ win_height = 700
 win = pygame.display.set_mode((win_width, win_height))
 
 clock = pygame.time.Clock()
+P = player.Player(win)
 
-while True:
+done = False
+while not done:
     delta_time = clock.tick() / 1000
-    event = pygame.event.poll()
-    keys = pygame.key.get_pressed()
-
-    if keys[pygame.K_ESCAPE]:
-        break
-    if event.type == pygame.QUIT:
-        break
+    done = P.handle_input(delta_time)
 
     win.fill((0, 0, 0))
+    P.draw_player()
 
     pygame.display.flip()
 pygame.quit()
