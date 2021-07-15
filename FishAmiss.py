@@ -3,7 +3,7 @@ import pygame
 
 import vector
 import random
-
+import fish
 import player
 
 
