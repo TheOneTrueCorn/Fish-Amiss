@@ -57,6 +57,7 @@ def shop(win):
 clock = pygame.time.Clock()
 
 def day_night():
+    global day
     #day night cycle
     global time
     global day_check1
@@ -101,6 +102,7 @@ def day_night():
             night_check1 = 0
             night_check2 = 0
             night_check3 = 0
+            day += 1
 
     win.fill(current_time)
 
@@ -113,10 +115,8 @@ while not done:
 
 
     win.fill((0, 0, 0))
-    shop(win)
-
     day_night()
-
+    shop(win)
 
     P.draw_player()
 
