@@ -3,9 +3,7 @@ import pygame
 
 import vector
 import random
-import fish
-import player
-
+import movingObj
 
 pygame.init()
 
@@ -24,20 +22,15 @@ night_check1 = 0
 night_check2 = 0
 night_check3 = 0
 
-
-
-
 time = "day"
-
-P = player.Player(win)
-
+P = movingObj.Player(win)
+F_class = movingObj.Fish(win, 0, 0)
+F1 = movingObj.BoringFish(win, 5, 20)
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
 font_obj3 = pygame.font.SysFont("Courier New", 15)
 
-# starting variables
-money = 0
-day = 1
+
 
 def shop(win):
     shop_txt = font_obj.render("Shop", False, (255, 255, 255))
@@ -106,19 +99,26 @@ def day_night():
 
     win.fill(current_time)
 
+# starting variables
+money = 0
+day = 1
+fish_speed = 0
+
 
 done = False
 while not done:
     delta_time = clock.tick() / 1000
     money += 1 * delta_time
     done = P.handle_input(delta_time)
-
+    fish_speed += 20 * delta_time
 
     win.fill((0, 0, 0))
     day_night()
     shop(win)
-
     P.draw_player()
+
+    F1.draw(fish_speed)
+
 
 
     pygame.display.flip()
