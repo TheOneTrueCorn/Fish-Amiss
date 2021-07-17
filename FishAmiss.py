@@ -3,7 +3,11 @@ import pygame
 
 import vector
 import random
+
 import movingObj
+
+import solar_object
+
 
 pygame.init()
 
@@ -23,9 +27,16 @@ night_check2 = 0
 night_check3 = 0
 
 time = "day"
+
 P = movingObj.Player(win)
 F_class = movingObj.Fish(win, 0, 0)
 F1 = movingObj.BoringFish(win, 5, 20)
+
+# P = player.Player(win)
+sun = solar_object.backgroundObject(500,350)
+moon = solar_object.backgroundObject(500,350)
+
+
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
 font_obj3 = pygame.font.SysFont("Courier New", 15)
@@ -98,6 +109,16 @@ def day_night():
             day += 1
 
     win.fill(current_time)
+    sun.get_forward()
+    sun.update(delta_time)
+    sun.draw(win)
+    moon.get_forward()
+    moon.alt_update(delta_time)
+    moon.alt_draw(win,current_time)
+    pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
+
+
+
 
 # starting variables
 money = 0
