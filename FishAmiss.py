@@ -1,13 +1,9 @@
 # starting pygame window
 import pygame
-
 import vector
 import random
-
 import movingObj
-
 import solar_object
-
 
 pygame.init()
 
@@ -35,7 +31,6 @@ F1 = movingObj.BoringFish(win, 5, 20)
 # P = player.Player(win)
 sun = solar_object.backgroundObject(500,350)
 moon = solar_object.backgroundObject(500,350)
-
 
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
@@ -118,29 +113,25 @@ def day_night():
     pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
 
 
-
-
 # starting variables
 money = 0
 day = 1
 fish_speed = 0
 
-
 done = False
 while not done:
     delta_time = clock.tick() / 1000
     money += 1 * delta_time
-    done = P.handle_input(delta_time)
     fish_speed += 20 * delta_time
 
     win.fill((0, 0, 0))
     day_night()
+
     shop(win)
     P.draw_player()
 
     F1.draw(fish_speed)
-
-
+    done = P.handle_input(delta_time)
 
     pygame.display.flip()
 pygame.quit()
