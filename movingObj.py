@@ -25,15 +25,17 @@ class Player:
             done = True
             return done
 
+        # if clicking, draw a line from boat to mouse pos
         if mbuttons[0]:
-            pygame.draw.line(self.surf, "white", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
+            pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
 
+        # if clicking, you are casting your line, so create a Bobber
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self.casting = True
-
             init_vel = vector.Vector2(self.pos.x + self.radius / 2, self.pos.y) - vector.Vector2(mpos[0], mpos[1])
             B = Bobber(self.pos.x + self.radius / 2, self.pos.y, init_vel.x, init_vel.y, 10)
 
+        # if casting line and there isn't a bobber, create one
         if self.casting and B!=None:
             B.draw_bobber(self.surf, dt, self.pos, self.radius, event)
 
@@ -104,27 +106,28 @@ class Bobber:
 
         pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
-        
-class Fish(Player):
-    def __init__(self, surf, num_fish, radius):
+
+class BoringFish(Player):
+    def __init__(self, surf, x, y, radius, side):
         super().__init__(surf)
+        self.side = side
+        self.pos = vector.Vector2(x, y)
         self.radius = radius
-        self.fish_list = []
-        for i in range(num_fish):
-            self.fish_list.append(random.randint(300, surf.get_height() - self.radius))
+        self.fish_speed = random.randint(50, 200)
 
-    # def update(self, dt):
-    #     for i in self.fish_list:
-    #         self.pos.x += 30 * dt
+    def update(self, dt, fish_list):
+        # side is 1 (left screen), move right
+        if self.side == 1:
+            self.pos.x += self.fish_speed * dt
+        # side is 2 (right screen), move left
+        if self.side == 2:
+            self.pos.x += -(self.fish_speed * dt)
 
-    # def draw(self, speed):
-    #     for fish in self.fish_list:
-    #         pygame.draw.circle(self.surf, "green", (0 + speed, fish), self.radius)
+        for fish in fish_list:
+            if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
+                fish_list.remove(fish)
+            if fish.pos.x < -(2 * fish.radius):
+                fish_list.remove(fish)
 
-class BoringFish(Fish):
-    def __init__(self, surf, num_fish, radius):
-        super().__init__(surf, num_fish, radius)
-        
-    def draw(self, speed):
-        for fish in self.fish_list:
-            pygame.draw.circle(self.surf, "green", (0 + speed, fish), self.radius)
+    def draw(self):
+        pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)

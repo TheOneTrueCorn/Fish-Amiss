@@ -25,17 +25,11 @@ night_check3 = 0
 time = "day"
 
 P = movingObj.Player(win)
-F_class = movingObj.Fish(win, 0, 0)
-F1 = movingObj.BoringFish(win, 5, 20)
-
-# P = player.Player(win)
 sun = solar_object.backgroundObject(500,350)
 moon = solar_object.backgroundObject(500,350)
-
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
 font_obj3 = pygame.font.SysFont("Courier New", 15)
-
 
 
 def shop(win):
@@ -53,7 +47,7 @@ def shop(win):
     pygame.draw.line(win, (255, 255, 255), (150, 120), (150, 155), 3)
     pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 150), 3)
 
-clock = pygame.time.Clock()
+
 
 def day_night():
     global day
@@ -111,18 +105,34 @@ def day_night():
     moon.alt_update(delta_time)
     moon.alt_draw(win,current_time)
     pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
-
+# end of function
 
 # starting variables
 money = 0
 day = 1
-fish_speed = 0
+basic_fish_timer = 1
+fish1_list = []
+clock = pygame.time.Clock()
+
+side = "left"
 
 done = False
 while not done:
     delta_time = clock.tick() / 1000
     money += 1 * delta_time
-    fish_speed += 20 * delta_time
+    basic_fish_timer -= delta_time
+
+    if basic_fish_timer <= 0:
+        basic_fish_timer = 1
+        side = random.randint(1, 2)
+        # if side is 1, spawn on left side of screen
+        if side == 1:
+            if len(fish1_list) < 6:
+                fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side))
+        # if side is 2, spawn on right side of screen
+        elif side == 2:
+            if len(fish1_list) < 6:
+                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height), 20, side))
 
     win.fill((0, 0, 0))
     day_night()
@@ -130,7 +140,10 @@ while not done:
     shop(win)
     P.draw_player()
 
-    F1.draw(fish_speed)
+    for fish in fish1_list:
+        fish.draw()
+        fish.update(delta_time, fish1_list)
+
     done = P.handle_input(delta_time)
 
     pygame.display.flip()
