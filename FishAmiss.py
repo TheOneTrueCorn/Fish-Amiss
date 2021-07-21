@@ -48,7 +48,6 @@ def shop(win):
     pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 150), 3)
 
 
-
 def day_night():
     global day
     #day night cycle

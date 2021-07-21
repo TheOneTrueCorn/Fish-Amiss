@@ -3,7 +3,6 @@ import random
 import vector
 import pygame
 class Player:
-
     def __init__(self, surf):
         self.radius = 50
         self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 200)
@@ -40,11 +39,14 @@ class Player:
             B.draw_bobber(self.surf, dt, self.pos, self.radius, event)
 
         # left and right movement
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] and self.casting != True:
             self.pos.x += self.speed * dt
 
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] and self.casting != True:
             self.pos.x -= self.speed * dt
+
+        if keys[pygame.K_SPACE] and self.casting:
+            self.casting = False
 
         # if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
         #     Fish(self.surf, 3, 300, 300)
@@ -64,11 +66,8 @@ class Bobber:
         self.color = vector.Vector3(255, 0, 0)
         self.radius = radius
         self.position = vector.Vector2(x, y)
-        #self.mass = 0.001 * (4 / 3) * math.pi * (self.radius ** 3)
         self.acceleration = vector.Vector2(0, 0)
-        #self.max_vel = 300
         self.change_hook = False
-
 
     def draw_bobber(self, surf, dt, player_pos, player_rad, event):
         global hook_x, hook_y
@@ -81,7 +80,8 @@ class Bobber:
 
         if self.position.x < self.radius:
             self.position.x = self.radius
-
+        
+        # makes bobber fall
         if self.velocity.magnitude > 0:
             friction = 150 * dt
             self.velocity.y += friction
@@ -107,6 +107,13 @@ class Bobber:
         pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
+    def hooked(self, fish_x, fish_y, fish_rad):
+        x_diff = fish_x - self.position.x
+        y_diff = fish_y - self.position.y
+        distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+        if distance <= fish_rad + self.radius:
+            print("hooked")
+
 class BoringFish(Player):
     def __init__(self, surf, x, y, radius, side):
         super().__init__(surf)
@@ -122,7 +129,8 @@ class BoringFish(Player):
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
-
+        
+        # here is where I wanted to call a distance check between the hook of the bobber and the fish position
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
                 fish_list.remove(fish)
