@@ -25,14 +25,15 @@ class Player:
             return done
 
         # if clicking, draw a line from boat to mouse pos
-        if mbuttons[0]:
+        if mbuttons[2]:
             pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
             self.casting = True
             init_vel = vector.Vector2(self.pos.x + self.radius / 2, self.pos.y) - vector.Vector2(mpos[0], mpos[1])
             B = Bobber(self.pos.x + self.radius / 2, self.pos.y, init_vel.x, init_vel.y, 10)
+
 
         # if casting line and there isn't a bobber, create one
         if self.casting and B!=None:
@@ -83,7 +84,8 @@ class Bobber:
         
         # makes bobber fall
         if self.velocity.magnitude > 0:
-            friction = 150 * dt
+            friction = 150 * (dt+0.65)**1/175
+            print(friction)
             self.velocity.y += friction
             if self.position.y > 250:
                 self.velocity = vector.Vector2(0, 0)
