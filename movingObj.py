@@ -29,11 +29,10 @@ class Player:
             pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and self.casting != True:
             self.casting = True
             init_vel = vector.Vector2(self.pos.x + self.radius / 2, self.pos.y) - vector.Vector2(mpos[0], mpos[1])
             B = Bobber(self.pos.x + self.radius / 2, self.pos.y, init_vel.x, init_vel.y, 10)
-
 
         # if casting line and there isn't a bobber, create one
         if self.casting and B!=None:
@@ -45,8 +44,10 @@ class Player:
 
         if keys[pygame.K_a] and self.casting != True:
             self.pos.x -= self.speed * dt
-
-        if keys[pygame.K_SPACE] and self.casting:
+        
+        # you retrieve your bobber when you press spacebar
+        # but you can't retrieve it while you're casting
+        if keys[pygame.K_SPACE] and self.casting and B.position.y >= 250:
             self.casting = False
 
         # if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -85,7 +86,6 @@ class Bobber:
         # makes bobber fall
         if self.velocity.magnitude > 0:
             friction = 150 * (dt+0.65)**1/175
-            print(friction)
             self.velocity.y += friction
             if self.position.y > 250:
                 self.velocity = vector.Vector2(0, 0)
@@ -99,6 +99,8 @@ class Bobber:
         if self.change_hook:
             pygame.draw.line(surf, "white", (self.position), (hook_x, hook_y), 1)
             pygame.draw.circle(surf, "gold", (hook_x, hook_y), self.radius)
+
+            # scroll to change hook_y
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
                 hook_y += 10
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
@@ -109,6 +111,7 @@ class Bobber:
         pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
+    # ISN'T CALLED ANYWHERE
     def hooked(self, fish_x, fish_y, fish_rad):
         x_diff = fish_x - self.position.x
         y_diff = fish_y - self.position.y
