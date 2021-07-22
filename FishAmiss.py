@@ -178,6 +178,8 @@ while not done:
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
 
+    
+
 
 
     pygame.display.flip()
