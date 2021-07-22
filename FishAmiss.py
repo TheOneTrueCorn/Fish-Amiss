@@ -173,7 +173,7 @@ while not done:
         fish.update(delta_time, fish1_list)
 
     money = P.update(fish1_list, money)
-    done = P.handle_input(delta_time)
+    done = P.handle_input(delta_time, fish1_list)
 
 
 
