@@ -54,7 +54,11 @@ class Player:
         # but you can't retrieve it while you're casting
         if keys[pygame.K_SPACE] and self.casting and self.B.position.y >= 250:
             self.casting = False
+            # fish disappears if you press spacebar with a fish
             for fish in fish1_list:
+                if fish.caught:
+                    fish.hitbox = False
+                    fish.fish_speed = 300
                 fish.caught = False
 
         # this code doesn't allow you to go off screen
@@ -65,7 +69,7 @@ class Player:
 
     def update(self, flist, money):
         for fish in flist:
-            if self.B != None:
+            if self.B != None and fish.hitbox == True:
                 caught_fish = self.B.hooked(fish.pos.x, fish.pos.y, fish.radius, self.surf, fish.qte_key)
                 if caught_fish:
                     fish.caught = True
@@ -199,6 +203,7 @@ class BoringFish(Player):
         self.caught = False
         self.area = (0, 0, 0, 0)
         self.type = random.randint(1, 2)
+        self.hitbox = True
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -221,9 +226,6 @@ class BoringFish(Player):
                 fish_list.remove(fish)
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
-
-    #def draw(self):
-    #    pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)
 
     def draw(self,img):
         self.surf.blit(img,(self.pos.x - 40,self.pos.y - 35 ),self.area)
