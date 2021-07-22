@@ -230,4 +230,4 @@ class BoringFish(Player):
                 fish_list.remove(fish)
 
     def draw(self,img):
-        self.surf.blit(img,self.pos,self.area)
+        self.surf.blit(img,(self.pos.x - 40,self.pos.y - 35 ),self.area)
