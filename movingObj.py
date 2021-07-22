@@ -4,12 +4,14 @@ import vector
 import pygame
 class Player:
     def __init__(self, surf):
-        self.radius = 50
-        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 200)
+        self.radius = 87
+        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 220)
         self.speed = 200
         self.surf = surf
         self.casting = False
         self.B = None
+        self.area = (0,0,87,90)
+        self.frame = 0
 
     def handle_input(self, dt):
         event = pygame.event.poll()
@@ -26,7 +28,7 @@ class Player:
 
         # if clicking, draw a line from boat to mouse pos
         if mbuttons[2]:
-            pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
+            pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y + 20), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
         if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and self.casting != True:
@@ -41,9 +43,11 @@ class Player:
         # left and right movement
         if keys[pygame.K_d] and self.casting != True:
             self.pos.x += self.speed * dt
+            self.frame += 1 * dt
 
         if keys[pygame.K_a] and self.casting != True:
             self.pos.x -= self.speed * dt
+            self.frame += 1 * dt
 
         # you retrieve your bobber when you press spacebar
         # but you can't retrieve it while you're casting
@@ -73,8 +77,13 @@ class Player:
                         return money
         return money
 
-    def draw_player(self):
-        pygame.draw.rect(self.surf, "white", (self.pos.x, self.pos.y, self.radius, self.radius))
+    def draw_player(self,img):
+        if self.frame > 0.25:
+            self.area = (95,0,87,90)
+            if self.frame > 0.5:
+                self.area = (0,0,87,90)
+                self.frame = 0
+        self.surf.blit(img,self.pos,self.area)
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):
@@ -125,7 +134,7 @@ class Bobber:
             if self.hook_y <= 250:
                 self.hook_y = 250
 
-        pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y), (self.position))
+        pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y + 20), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
     # ISN'T CALLED ANYWHERE
