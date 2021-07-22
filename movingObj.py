@@ -10,6 +10,7 @@ class Player:
         self.surf = surf
         self.casting = False
         self.B = None
+        self.caught_fish = 0
 
     def handle_input(self, dt):
         event = pygame.event.poll()
@@ -64,12 +65,15 @@ class Player:
             if self.B != None:
                 caught_fish = self.B.hooked(fish.pos.x, fish.pos.y, fish.radius, self.surf, fish.qte_key)
                 if caught_fish:
+                    fish.caught = True
+                if fish.caught:
                     fish.pos.x = self.B.hook_x
                     fish.pos.y = self.B.hook_y
                     if fish.pos.y <= 250 + fish.radius:
                         flist.remove(fish)
                         money += random.randint(20, 27)
                         self.casting = False
+                        self.caught_fish = 0
                         return money
         return money
 
@@ -84,7 +88,7 @@ class Bobber:
         self.position = vector.Vector2(x, y)
         self.acceleration = vector.Vector2(0, 0)
         self.change_hook = False
-        # do same thing with B, change from global to attribute
+        self.caught = False
         self.hook_x = None
         self.hook_y = None
 
@@ -136,55 +140,45 @@ class Bobber:
             distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
             if distance <= fish_rad + self.radius:
                 keys = pygame.key.get_pressed()
-                
+                font = pygame.font.SysFont("Courier New", 20)
+                #return keys[pygame.K_t]
+
+        # DON'T DELETE --- BELOW IS IMPORTANT
+
                 if qte_key == 1:
                     qte_key = "R"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_r]
                 if qte_key == 2:
                     qte_key = "T"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_t]
                 if qte_key == 3:
                     qte_key = "F"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_f]
                 if qte_key == 4:
                     qte_key = "G"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_g]
                 if qte_key == 5:
                     qte_key = "C"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_c]
                 if qte_key == 6:
                     qte_key = "V"
-                    font = pygame.font.SysFont("Courier New", 20)
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_v]
 
+        # DON'T DELETE --- ABOVE IS IMPORTANT
 
 
-
-
-                # success = Player.QTE(surf)
-                # if success:
-                #     print("EDD")
-                #     fish_x = self.hook_x
-                #     fish_y = self.hook_y
-                # else:
-                #     pass
 
 class BoringFish(Player):
     def __init__(self, surf, x, y, radius, side, qte_key):
@@ -194,6 +188,7 @@ class BoringFish(Player):
         self.radius = radius
         self.fish_speed = random.randint(50, 150)
         self.qte_key = qte_key
+        self.caught = False
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -211,3 +206,29 @@ class BoringFish(Player):
 
     def draw(self):
         pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)
+
+class BiggerFish(Player):
+    def __init__(self, surf, x, y, radius, side, qte_key):
+        super().__init__(surf)
+        self.side = side
+        self.pos = vector.Vector2(x, y)
+        self.radius = radius
+        self.fish_speed = 150
+        self.qte_key = qte_key
+
+    def update(self, dt, fish_list):
+        # side is 1 (left screen), move right
+        if self.side == 1:
+            self.pos.x += self.fish_speed * dt
+        # side is 2 (right screen), move left
+        if self.side == 2:
+            self.pos.x += -(self.fish_speed * dt)
+
+        for fish in fish_list:
+            if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
+                fish_list.remove(fish)
+            if fish.pos.x < -(2 * fish.radius):
+                fish_list.remove(fish)
+
+    def draw(self):
+        pygame.draw.circle(self.surf, "red", (self.pos.x, self.pos.y), self.radius)

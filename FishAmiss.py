@@ -110,7 +110,12 @@ def day_night():
 money = 0
 day = 1
 basic_fish_timer = 1
+fish_count = 1
+
 fish1_list = []
+fish2_list = []
+fish3_list = []
+
 clock = pygame.time.Clock()
 qte_key = 1
 side = "left"
@@ -124,16 +129,28 @@ while not done:
         basic_fish_timer = 1
         side = random.randint(1, 2)
         qte_key += 1
+        fish_count += 1
         if qte_key > 6:
             qte_key = 1
         # if side is 1, spawn on left side of screen
         if side == 1:
             if len(fish1_list) < 6:
                 fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side, qte_key))
+
+            if fish_count == 10:
+                fish2_list.append(
+                    movingObj.BiggerFish(win, -40, random.randint(550, win_height), 40, side, qte_key))
+                fish_count = 1
+
         # if side is 2, spawn on right side of screen
         elif side == 2:
             if len(fish1_list) < 6:
-                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height), 20, side, qte_key))
+                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height - 20), 20, side, qte_key))
+
+            if fish_count == 10:
+                fish2_list.append(
+                    movingObj.BiggerFish(win, win_width + 40, random.randint(550, win_height - 40), 40, side, qte_key))
+                fish_count = 1
 
     win.fill((0, 0, 0))
     day_night()
@@ -142,6 +159,10 @@ while not done:
     P.draw_player()
 
     for fish in fish1_list:
+        fish.draw()
+        fish.update(delta_time, fish1_list)
+
+    for fish in fish2_list:
         fish.draw()
         fish.update(delta_time, fish1_list)
 
