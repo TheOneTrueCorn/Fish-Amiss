@@ -112,26 +112,28 @@ day = 1
 basic_fish_timer = 1
 fish1_list = []
 clock = pygame.time.Clock()
-
+qte_key = 1
 side = "left"
 
 done = False
 while not done:
     delta_time = clock.tick() / 1000
-    money += 1 * delta_time
     basic_fish_timer -= delta_time
 
     if basic_fish_timer <= 0:
         basic_fish_timer = 1
         side = random.randint(1, 2)
+        qte_key += 1
+        if qte_key > 6:
+            qte_key = 1
         # if side is 1, spawn on left side of screen
         if side == 1:
             if len(fish1_list) < 6:
-                fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side))
+                fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side, qte_key))
         # if side is 2, spawn on right side of screen
         elif side == 2:
             if len(fish1_list) < 6:
-                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height), 20, side))
+                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height), 20, side, qte_key))
 
     win.fill((0, 0, 0))
     day_night()
@@ -143,6 +145,7 @@ while not done:
         fish.draw()
         fish.update(delta_time, fish1_list)
 
+    money = P.update(fish1_list, money)
     done = P.handle_input(delta_time)
 
     pygame.display.flip()
