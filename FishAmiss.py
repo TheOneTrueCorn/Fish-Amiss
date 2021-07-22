@@ -117,6 +117,7 @@ money = 0
 day = 1
 basic_fish_timer = 1
 fish_count = 1
+boss_fish = False
 
 fish1_list = []
 fish2_list = []
@@ -158,6 +159,11 @@ while not done:
                     movingObj.BiggerFish(win, win_width + 40, random.randint(550, win_height - 40), 40, side, qte_key))
                 fish_count = 1
 
+        # boss fish spawn
+        if fish_count == 5 and len(fish3_list) < 1:
+            fish3_list.append(movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side, qte_key))
+            boss_fish = True
+
     win.fill((0, 0, 0))
     day_night()
 
@@ -172,10 +178,12 @@ while not done:
         fish.draw()
         fish.update(delta_time, fish1_list)
 
+    for fish in fish3_list:
+        fish.draw()
+        fish.update(delta_time, fish1_list)
+
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
-
-
 
     pygame.display.flip()
 pygame.quit()

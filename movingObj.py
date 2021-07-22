@@ -54,6 +54,7 @@ class Player:
         # but you can't retrieve it while you're casting
         if keys[pygame.K_SPACE] and self.casting and self.B.position.y >= 250:
             self.casting = False
+            self.B.hook_y = 0
             # fish disappears if you press spacebar with a fish
             for fish in fish1_list:
                 if fish.caught:
@@ -265,8 +266,49 @@ class BiggerFish(Player):
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
 
-
     def draw(self):
        pygame.draw.circle(self.surf, "red", (self.pos.x, self.pos.y), self.radius)
 
+class BossFish(Player):
+    def __init__(self, surf, x, y, radius, side, qte_key):
+        super().__init__(surf)
+        self.side = side
+        self.pos = vector.Vector2(x, y)
+        self.radius = radius
+        self.fish_speed = 10
+        self.qte_key = qte_key
+        self.area = None
+        self.type = None
+        self.moving = True
 
+    def update(self, dt, fish_list):
+        # side is 1 (left screen), move right
+        if self.moving == True:
+            self.pos.y -= self.fish_speed * dt
+            # self.pos.x += random.randint(1, 2)
+            # self.pos.x -= random.randint(1, 2)
+        if self.pos.y <= self.surf.get_height() - self.radius:
+            self.pos.y = self.surf.get_height() - self.radius
+            self.moving = False
+        # if self.side == 1:
+        #     self.pos.x += self.fish_speed * dt
+            # if self.type == 1:
+            #     self.area = (0,0,78,75)
+            # else:
+            #     self.area = (85, 0, 85, 75)
+        # side is 2 (right screen), move left
+        # if self.side == 2:
+        #     self.pos.x += -(self.fish_speed * dt)
+            # if self.type == 1:
+            #     self.area = (78,70,90,80)
+            # else:
+            #     self.area = (0, 70, 90, 80)
+
+        # for fish in fish_list:
+        #     if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
+        #         fish_list.remove(fish)
+        #     if fish.pos.x < -(2 * fish.radius):
+        #         fish_list.remove(fish)
+
+    def draw(self):
+       pygame.draw.circle(self.surf, "black", (self.pos.x, self.pos.y), self.radius)
