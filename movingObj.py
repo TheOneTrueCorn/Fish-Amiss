@@ -203,14 +203,25 @@ class BoringFish(Player):
         self.radius = radius
         self.fish_speed = random.randint(50, 150)
         self.qte_key = qte_key
+        self.area = (0,0,0,0)
+        self.type = random.randint(1,2)
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
         if self.side == 1:
             self.pos.x += self.fish_speed * dt
+            if self.type == 1:
+                self.area = (0,0,78,75)
+            else:
+                self.area = (85, 0, 85, 75)
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
+            if self.type == 1:
+                self.area = (78,70,90,80)
+            else:
+                self.area = (0, 70, 90, 80)
+
 
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
@@ -218,5 +229,5 @@ class BoringFish(Player):
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
 
-    def draw(self):
-        pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)
+    def draw(self,img):
+        self.surf.blit(img,self.pos,self.area)

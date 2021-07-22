@@ -148,7 +148,7 @@ while not done:
     P.draw_player(playa)
 
     for fish in fish1_list:
-        fish.draw()
+        fish.draw(fishies)
         fish.update(delta_time, fish1_list)
 
     money = P.update(fish1_list, money)
