@@ -27,6 +27,7 @@ night_check3 = 0
 incomprehensible = pygame.image.load("vu'lphsted lunaris.png")
 fishies = pygame.image.load("fish.png")
 playa = pygame.image.load("boats.png")
+shops = pygame.image.load("fish shop.png")
 
 time = "day"
 
@@ -42,16 +43,18 @@ def shop(win):
     shop_txt = font_obj.render("Shop", False, (255, 255, 255))
     win.blit(shop_txt, (120, 5))
 
+
+
+    win.blit(shops,(5,35))
     money_txt = font_obj2.render("Cash:" + str(int(money)) + "$", False, (255, 255, 255))
-    win.blit(money_txt, (185, 125))
+    win.blit(money_txt, (185, 160))
 
     money_txt = font_obj2.render("Day:" + str(day), False, (255, 255, 255))
-    win.blit(money_txt, (50, 125))
-
+    win.blit(money_txt, (50, 160))
     pygame.draw.line(win, (255, 255, 255), (5, 35), (305, 35), 2)
-    pygame.draw.line(win, (255, 255, 255), (5, 120), (305, 120), 3)
-    pygame.draw.line(win, (255, 255, 255), (150, 120), (150, 155), 3)
-    pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 150), 3)
+    pygame.draw.line(win, (255, 255, 255), (5, 150), (305, 150), 3)
+    pygame.draw.line(win, (255, 255, 255), (150, 150), (150, 190), 3)
+    pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 185), 3)
 
 
 def day_night():
