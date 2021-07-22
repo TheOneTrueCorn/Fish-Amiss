@@ -59,8 +59,8 @@ class Player:
         if self.pos.x < 0:
             self.pos.x = 0
 
-    def draw_player(self):
-        pygame.draw.rect(self.surf, "white", (self.pos.x, self.pos.y, self.radius, self.radius))
+    def draw_player(self,surf,img):
+        surf.blit(img,self.pos,(90,90,00,200))
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):
