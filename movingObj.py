@@ -4,15 +4,17 @@ import vector
 import pygame
 class Player:
     def __init__(self, surf):
-        self.radius = 50
-        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 200)
+        self.radius = 87
+        self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 220)
         self.speed = 200
         self.surf = surf
         self.casting = False
         self.B = None
         self.caught_fish = 0
+        self.area = (0,0,87,90)
+        self.frame = 0
 
-    def handle_input(self, dt):
+    def handle_input(self, dt, fish1_list):
         event = pygame.event.poll()
         keys = pygame.key.get_pressed()
         mpos = pygame.mouse.get_pos()
@@ -27,7 +29,7 @@ class Player:
 
         # if clicking, draw a line from boat to mouse pos
         if mbuttons[2]:
-            pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y), (mpos[0], mpos[1]), 2)
+            pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y + 20), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
         if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and self.casting != True:
@@ -42,17 +44,18 @@ class Player:
         # left and right movement
         if keys[pygame.K_d] and self.casting != True:
             self.pos.x += self.speed * dt
+            self.frame += 1 * dt
 
         if keys[pygame.K_a] and self.casting != True:
             self.pos.x -= self.speed * dt
+            self.frame += 1 * dt
 
         # you retrieve your bobber when you press spacebar
         # but you can't retrieve it while you're casting
         if keys[pygame.K_SPACE] and self.casting and self.B.position.y >= 250:
             self.casting = False
-
-        # if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-        #     Fish(self.surf, 3, 300, 300)
+            for fish in fish1_list:
+                fish.caught = False
 
         # this code doesn't allow you to go off screen
         if self.pos.x > self.surf.get_width() - self.radius:
@@ -77,8 +80,13 @@ class Player:
                         return money
         return money
 
-    def draw_player(self):
-        pygame.draw.rect(self.surf, "white", (self.pos.x, self.pos.y, self.radius, self.radius))
+    def draw_player(self,img):
+        if self.frame > 0.25:
+            self.area = (95,0,87,90)
+            if self.frame > 0.5:
+                self.area = (0,0,87,90)
+                self.frame = 0
+        self.surf.blit(img,self.pos,self.area)
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):
@@ -129,7 +137,7 @@ class Bobber:
             if self.hook_y <= 250:
                 self.hook_y = 250
 
-        pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y), (self.position))
+        pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y + 20), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
     # ISN'T CALLED ANYWHERE
@@ -189,14 +197,24 @@ class BoringFish(Player):
         self.fish_speed = random.randint(50, 150)
         self.qte_key = qte_key
         self.caught = False
+        self.area = (0, 0, 0, 0)
+        self.type = random.randint(1, 2)
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
         if self.side == 1:
             self.pos.x += self.fish_speed * dt
+            if self.type == 1:
+                self.area = (0, 0, 78, 75)
+            else:
+                self.area = (85, 0, 85, 75)
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
+            if self.type == 1:
+                self.area = (78,70,90,80)
+            else:
+                self.area = (0, 70, 90, 80)
 
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
@@ -204,8 +222,11 @@ class BoringFish(Player):
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
 
-    def draw(self):
-        pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)
+    #def draw(self):
+    #    pygame.draw.circle(self.surf, "green", (self.pos.x, self.pos.y), self.radius)
+
+    def draw(self,img):
+        self.surf.blit(img,(self.pos.x - 40,self.pos.y - 35 ),self.area)
 
 class BiggerFish(Player):
     def __init__(self, surf, x, y, radius, side, qte_key):
@@ -215,14 +236,26 @@ class BiggerFish(Player):
         self.radius = radius
         self.fish_speed = 150
         self.qte_key = qte_key
+        self.area = None
+        self.type = None
+
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
         if self.side == 1:
             self.pos.x += self.fish_speed * dt
+            # if self.type == 1:
+            #     self.area = (0,0,78,75)
+            # else:
+            #     self.area = (85, 0, 85, 75)
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
+            # if self.type == 1:
+            #     self.area = (78,70,90,80)
+            # else:
+            #     self.area = (0, 70, 90, 80)
+
 
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
@@ -230,5 +263,8 @@ class BiggerFish(Player):
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
 
+
     def draw(self):
-        pygame.draw.circle(self.surf, "red", (self.pos.x, self.pos.y), self.radius)
+       pygame.draw.circle(self.surf, "red", (self.pos.x, self.pos.y), self.radius)
+
+

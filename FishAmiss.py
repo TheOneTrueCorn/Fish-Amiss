@@ -22,6 +22,12 @@ night_check1 = 0
 night_check2 = 0
 night_check3 = 0
 
+
+# images
+incomprehensible = pygame.image.load("vu'lphsted lunaris.png")
+fishies = pygame.image.load("fish.png")
+playa = pygame.image.load("boats.png")
+
 time = "day"
 
 P = movingObj.Player(win)
@@ -156,10 +162,10 @@ while not done:
     day_night()
 
     shop(win)
-    P.draw_player()
+    P.draw_player(playa)
 
     for fish in fish1_list:
-        fish.draw()
+        fish.draw(fishies)
         fish.update(delta_time, fish1_list)
 
     for fish in fish2_list:
@@ -168,6 +174,8 @@ while not done:
 
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time)
+
+
 
     pygame.display.flip()
 pygame.quit()
