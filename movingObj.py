@@ -315,8 +315,9 @@ class BossFish(Player):
         #     if fish.pos.x < -(2 * fish.radius):
         #         fish_list.remove(fish)
 
-    def draw(self):
-       pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+    def draw(self,img):
+       # pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+       self.surf.blit(img,(self.pos.x - 170,self.pos.y - 260),(0,60,400,600))
 
 class FishProjectile(Player):
     def __init__(self, surf, x, y, radius, side, proj_speed):

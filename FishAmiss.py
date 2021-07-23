@@ -28,6 +28,9 @@ incomprehensible = pygame.image.load("vu'lphsted lunaris.png")
 fishies = pygame.image.load("fish.png")
 playa = pygame.image.load("boats.png")
 shops = pygame.image.load("fish shop.png")
+title =pygame.image.load("fish amiss title.png")
+hook_wurm = pygame.image.load("big bois and harpoon.png")
+spews = pygame.image.load("spewer.png")
 
 time = "day"
 
@@ -195,7 +198,7 @@ while not done:
         fish.update(delta_time, fish1_list)
 
     for fish in fish3_list:
-        fish.draw()
+        fish.draw(hook_wurm)
         fish.update(delta_time, fish1_list)
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
@@ -213,6 +216,9 @@ while not done:
 
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
+
+    if title_screen:
+        win.blit(title,(0,0))
 
     pygame.display.flip()
 pygame.quit()
