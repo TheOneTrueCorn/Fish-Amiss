@@ -14,6 +14,7 @@ class Player:
         self.B = None
         self.caught_fish = 0
         self.area = (0,0,87,90)
+        self.bar_area = (0,0,130,70)
         self.frame = 0
         self.health = 100
         self.harpoons = 1
@@ -90,6 +91,8 @@ class Player:
             self.pos.x = 0
 
 
+
+
     def update(self, flist, money):
         for fish in flist:
             if self.B != None and fish.hitbox == True:
@@ -107,13 +110,19 @@ class Player:
                         return money
         return money
 
-    def draw_player(self,img):
+    def draw_player(self,img,bar_img):
         if self.frame > 0.25:
             self.area = (95,0,87,90)
+            self.bar_area = self.bar_area = (0,0,130,70)
             if self.frame > 0.5:
                 self.area = (0,0,87,90)
                 self.frame = 0
+                self.bar_area = self.bar_area = (145, -3, 140, 70)
+
+        for i in range(self.health):
+            pygame.draw.rect(self.surf,(100,255,200),(879 + (i * 0.95),31,1,10))
         self.surf.blit(img,self.pos,self.area)
+        self.surf.blit(bar_img,(870,10),self.bar_area)
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):

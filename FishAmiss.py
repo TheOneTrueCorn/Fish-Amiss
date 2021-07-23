@@ -31,6 +31,7 @@ shops = pygame.image.load("fish shop.png")
 title =pygame.image.load("fish amiss title.png")
 hook_wurm = pygame.image.load("big bois and harpoon.png")
 spews = pygame.image.load("spewer.png")
+player_bar = pygame.image.load("healthbar.png")
 
 time = "day"
 
@@ -187,7 +188,7 @@ while not done:
     day_night()
 
     shop(win)
-    P.draw_player(playa)
+    P.draw_player(playa,player_bar)
 
     for fish in fish1_list:
         fish.draw(fishies)
