@@ -27,6 +27,7 @@ class Player:
             done = True
             return done
 
+
         # if clicking, draw a line from boat to mouse pos
         if mbuttons[2]:
             pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y + 20), (mpos[0], mpos[1]), 2)
@@ -67,6 +68,7 @@ class Player:
             self.pos.x = self.surf.get_width() - self.radius
         if self.pos.x < 0:
             self.pos.x = 0
+
 
     def update(self, flist, money):
         for fish in flist:
