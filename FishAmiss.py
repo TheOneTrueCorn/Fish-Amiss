@@ -191,7 +191,7 @@ while not done:
         fish.update(delta_time, fish1_list)
 
     for fish in fish2_list:
-        fish.draw()
+        fish.draw(fishies)
         fish.update(delta_time, fish1_list)
 
     for fish in fish3_list:
