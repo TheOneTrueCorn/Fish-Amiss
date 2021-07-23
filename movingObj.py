@@ -92,7 +92,6 @@ class Player:
 
 
 
-
     def update(self, flist, money):
         for fish in flist:
             if self.B != None and fish.hitbox == True:
@@ -376,6 +375,9 @@ class FishProjectile(Player):
                 if distance <= proj.radius + player_rad:
                     plist.remove(proj)
                     # player loses some health
+                    player_health -= 10
+                    return player_health
+        return player_health
 
     def proj_path(self, dt):
         self.pos.y -= self.proj_speed * dt
