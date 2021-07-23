@@ -119,20 +119,33 @@ def day_night():
 money = 0
 day = 1
 basic_fish_timer = 1
+projectile_timer = 1
 fish_count = 1
 boss_fish = False
 
 fish1_list = []
 fish2_list = []
 fish3_list = []
+lunaris_plist = []
 
+paused = True
+title_screen = True
 clock = pygame.time.Clock()
 qte_key = 1
 side = "left"
 
 done = False
 while not done:
+    keys = pygame.key.get_pressed()
     delta_time = clock.tick() / 1000
+    if keys[pygame.K_p] and paused == False:
+        paused = True
+    if keys[pygame.K_u] and paused == True:
+        paused = False
+        title_screen = False
+    if paused:
+        delta_time = 0
+        
     basic_fish_timer -= delta_time
 
     if basic_fish_timer <= 0:
@@ -163,8 +176,8 @@ while not done:
                 fish_count = 1
 
         # boss fish spawn
-        if fish_count == 5 and len(fish3_list) < 1:
-            fish3_list.append(movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side, qte_key))
+        if fish_count == 2 and len(fish3_list) < 1:
+            fish3_list.append(movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side))
             boss_fish = True
 
     win.fill((0, 0, 0))
@@ -184,6 +197,19 @@ while not done:
     for fish in fish3_list:
         fish.draw()
         fish.update(delta_time, fish1_list)
+
+    #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
+    if boss_fish == True:
+        projectile_timer -= delta_time
+
+        if projectile_timer <= 0:
+            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 50))
+            projectile_timer = 1
+
+        for proj in lunaris_plist:
+            proj.draw()
+            proj.update(delta_time, lunaris_plist, P.pos.x, P.pos.y, P.radius, P.health, fish3_list[0].moving)
+    #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
