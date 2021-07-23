@@ -209,8 +209,10 @@ while not done:
         projectile_timer -= delta_time
 
         if projectile_timer <= 0:
-            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 50))
-            projectile_timer = 1
+            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
+            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
+            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
+            projectile_timer = 0.5
 
         for proj in lunaris_plist:
             proj.draw()

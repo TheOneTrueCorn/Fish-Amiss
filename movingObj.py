@@ -16,6 +16,11 @@ class Player:
         self.area = (0,0,87,90)
         self.frame = 0
         self.health = 100
+        self.harpoons = 1
+        self.harpoon_is_active = False
+        self.init_vel = 0
+        self.harpy = 0
+        self.harpx = 0
 
     def handle_input(self, dt, fish1_list):
         event = pygame.event.poll()
@@ -30,6 +35,18 @@ class Player:
             done = True
             return done
 
+        # if self.harpoons > 0:
+        #     if event.type == pygame.MOUSEBUTTONDOWN:
+        #         self.init_vel = vector.Vector2(mpos[0], mpos[1]) - vector.Vector2(self.pos.x, self.pos.y)
+        #         self.harpoon_is_active = True
+        #         self.harpoons -= 1
+        #         self.harpx = self.pos.x
+        #         self.harpy = self.pos.y
+        #
+        # if self.harpoon_is_active:
+        #     H = Harpoon(self.surf, mpos[0], mpos[1],  self.init_vel.x, self.init_vel.y, self.harpx, self.harpy)
+        #     H.update(dt)
+        #     H.draw()
 
         # if clicking, draw a line from boat to mouse pos
         if mbuttons[2]:
@@ -124,7 +141,7 @@ class Bobber:
         
         # makes bobber fall
         if self.velocity.magnitude > 0:
-            friction = 150 * (dt+0.65)**1/175
+            friction = 500 * dt#(dt+0.65)**1/175
             self.velocity.y += friction
             if self.position.y > 250:
                 self.velocity = vector.Vector2(0, 0)
@@ -329,6 +346,7 @@ class FishProjectile(Player):
         self.proj_speed = proj_speed
         self.radius = radius
         self.side = side
+        self.velocity = vector.Vector2(random.randint(-60, 60), 0)
 
     def draw(self):
         pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
@@ -338,13 +356,7 @@ class FishProjectile(Player):
         if wait != True:
             for proj in plist:
                 proj.proj_path(dt)
-                #proj.pos.y -= self.proj_speed * dt
-                # if len(plist) % 2 == 0:
-                #     # make x right
-                #     proj.pos.x += 50 * dt
-                # if len(plist) % 2 > 0:
-                #     # make x left
-                #     proj.pos.x -= 50 * dt
+
                 if proj.pos.y <= -player_rad:
                     plist.remove(proj)
 
@@ -358,3 +370,35 @@ class FishProjectile(Player):
 
     def proj_path(self, dt):
         self.pos.y -= self.proj_speed * dt
+        self.pos.x += self.velocity.x * dt
+        # if len(plist) % 2 == 0:
+        #     # make x right
+        #     self.pos.x += self.velocity.x * dt
+        # if len(plist) % 2 > 0:
+        #     # make x left
+        #     self.pos.x -= self.velocity.x * dt
+        #self.pos.x -= self.velocity * dt
+
+class Harpoon(Player):
+    def __init__(self, surf, mx, my, velx, vely, hx, hy):
+        super().__init__(surf)
+        self.mouse_pos = vector.Vector2(mx, my)
+        self.orientation = 0
+        self.velocity = vector.Vector2(velx, vely)
+        self.position = vector.Vector2(hx, hy)
+
+    def update(self, dt):
+        adjacent = self.mouse_pos.x - self.pos.x
+        opposite = -(self.mouse_pos.y - self.pos.y)  # Negate because of pygame's inverted y-axis
+        # Make the ship turn towards the mouse
+        desired_angle = math.degrees(math.atan2(opposite, adjacent))  # The direction we WANT to face
+        self.orientation = self.orientation % 360  # Makes sure orientation is in the range 0...360
+        desired_angle = desired_angle % 360  # Makes sure desired_angle is in the range 0...360
+        self.orientation = desired_angle
+
+        self.position += self.velocity * dt
+
+    def draw(self):
+        #dhat = (self.mouse_pos - self.cur_pos).normalized
+        pygame.draw.line(self.surf, "grey", (self.pos), (self.mouse_pos), 3)
+        pygame.draw.circle(self.surf, "black", (self.position), 20)
