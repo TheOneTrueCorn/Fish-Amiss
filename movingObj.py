@@ -2,9 +2,11 @@
 import random
 import vector
 import pygame
+import math
+
 class Player:
     def __init__(self, surf):
-        self.radius = 87
+        self.radius = 43
         self.pos = vector.Vector2(surf.get_width() / 2 - self.radius / 2, 220)
         self.speed = 200
         self.surf = surf
@@ -13,6 +15,7 @@ class Player:
         self.caught_fish = 0
         self.area = (0,0,87,90)
         self.frame = 0
+        self.health = 100
 
     def handle_input(self, dt, fish1_list):
         event = pygame.event.poll()
@@ -145,8 +148,8 @@ class Bobber:
         pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y + 20), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
-    # ISN'T CALLED ANYWHERE
     def hooked(self, fish_x, fish_y, fish_rad, surf, qte_key):
+        # checks distance from hook to fish
         if self.hook_x != None and self.hook_y != None:
             x_diff = fish_x - self.hook_x
             y_diff = fish_y - self.hook_y
@@ -154,10 +157,8 @@ class Bobber:
             if distance <= fish_rad + self.radius:
                 keys = pygame.key.get_pressed()
                 font = pygame.font.SysFont("Courier New", 20)
-                #return keys[pygame.K_t]
 
-        # DON'T DELETE --- BELOW IS IMPORTANT
-
+                # if hook is over a fish, show text box with random key, return true if correct key is pressed
                 if qte_key == 1:
                     qte_key = "R"
                     txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
@@ -189,10 +190,6 @@ class Bobber:
                     surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
                     return keys[pygame.K_v]
 
-        # DON'T DELETE --- ABOVE IS IMPORTANT
-
-
-
 class BoringFish(Player):
     def __init__(self, surf, x, y, radius, side, qte_key):
         super().__init__(surf)
@@ -222,6 +219,7 @@ class BoringFish(Player):
             else:
                 self.area = (0, 70, 90, 80)
 
+        # remove fish if they go off screen
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
                 fish_list.remove(fish)
@@ -259,7 +257,7 @@ class BiggerFish(Player):
             # else:
             #     self.area = (0, 70, 90, 80)
 
-
+        # remove fish if they go off screen
         for fish in fish_list:
             if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
                 fish_list.remove(fish)
@@ -270,16 +268,16 @@ class BiggerFish(Player):
        pygame.draw.circle(self.surf, "red", (self.pos.x, self.pos.y), self.radius)
 
 class BossFish(Player):
-    def __init__(self, surf, x, y, radius, side, qte_key):
+    def __init__(self, surf, x, y, radius, side):
         super().__init__(surf)
         self.side = side
         self.pos = vector.Vector2(x, y)
         self.radius = radius
-        self.fish_speed = 10
-        self.qte_key = qte_key
+        self.fish_speed = 100
         self.area = None
         self.type = None
         self.moving = True
+        self.proj_list = []
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -311,4 +309,41 @@ class BossFish(Player):
         #         fish_list.remove(fish)
 
     def draw(self):
-       pygame.draw.circle(self.surf, "black", (self.pos.x, self.pos.y), self.radius)
+       pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+
+class FishProjectile(Player):
+    def __init__(self, surf, x, y, radius, side, proj_speed):
+        super().__init__(surf)
+        self.pos = vector.Vector2(x, y)
+        self.proj_speed = proj_speed
+        self.radius = radius
+        self.side = side
+
+    def draw(self):
+        pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+
+    def update(self, dt, plist, player_x, player_y, player_rad, player_health, wait):
+        # if boss fish is done moving
+        if wait != True:
+            for proj in plist:
+                proj.proj_path(dt)
+                #proj.pos.y -= self.proj_speed * dt
+                # if len(plist) % 2 == 0:
+                #     # make x right
+                #     proj.pos.x += 50 * dt
+                # if len(plist) % 2 > 0:
+                #     # make x left
+                #     proj.pos.x -= 50 * dt
+                if proj.pos.y <= -player_rad:
+                    plist.remove(proj)
+
+                # check distance from projectile to player
+                x_diff = proj.pos.x - player_x - player_rad
+                y_diff = proj.pos.y - player_y - 10
+                distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+                if distance <= proj.radius + player_rad:
+                    plist.remove(proj)
+                    # player loses some health
+
+    def proj_path(self, dt):
+        self.pos.y -= self.proj_speed * dt
