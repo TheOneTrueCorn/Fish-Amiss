@@ -192,11 +192,11 @@ while not done:
 
     for fish in fish2_list:
         fish.draw(fishies)
-        fish.update(delta_time, fish1_list)
+        fish.update(delta_time, fish2_list, fish1_list)
 
     for fish in fish3_list:
         fish.draw()
-        fish.update(delta_time, fish1_list)
+        fish.update(delta_time, fish3_list)
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
