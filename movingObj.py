@@ -242,8 +242,7 @@ class BiggerFish(Player):
         self.area = (0,0,0,0)
         self.type = random.randint(1,2)
 
-
-    def update(self, dt, fish_list):
+    def update(self, dt, bor_fish_list, big_fish_list):
         # side is 1 (left screen), move right
         if self.side == 1:
             self.pos.x += self.fish_speed * dt
@@ -262,13 +261,19 @@ class BiggerFish(Player):
                 self.radius = 60
 
         # remove fish if they go off screen
-        for fish in fish_list:
-            if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
-                fish_list.remove(fish)
-            if fish.pos.x < -(2 * fish.radius):
-                fish_list.remove(fish)
+        for big_fish in big_fish_list:
+            if big_fish.pos.x > self.surf.get_width() + 2 * big_fish.radius:
+                big_fish_list.remove(big_fish)
+            if big_fish.pos.x < -(2 * big_fish.radius):
+                big_fish_list.remove(big_fish)
 
-
+            # if a big fish hits a small fish, remove it
+            for lit_fish in bor_fish_list:
+                x_diff = big_fish.pos.x - lit_fish.pos.x
+                y_diff = big_fish.pos.y - lit_fish.pos.y
+                distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+                if distance <= big_fish.radius + lit_fish.radius:
+                    big_fish_list.remove(big_fish)
 
     def draw(self, img):
         self.surf.blit(img, (self.pos.x - 65, self.pos.y - 60), self.area)
@@ -281,8 +286,6 @@ class BossFish(Player):
         self.pos = vector.Vector2(x, y)
         self.radius = radius
         self.fish_speed = 100
-        self.area = None
-        self.type = None
         self.moving = True
         self.proj_list = []
 
