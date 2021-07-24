@@ -256,6 +256,17 @@ while not done:
                 # player bought a harpoon
                 money -= 250
 
+    # options menu
+    if paused:
+        menu = pygame.Surface((700, 500))
+        menu.fill((0, 0, 0))
+        win.blit(menu, (win_width / 2 - 350, win_height / 2 - 250))
+        txt = font_obj2.render("Information Screen", False, (255, 255, 255))
+        win.blit(txt, (400, 105))
+
+    txt = font_obj2.render("[P] for info", False, (255, 255, 255))
+    win.blit(txt, (450, 10))
+
     if title_screen:
         win.blit(title,(0,0))
 
