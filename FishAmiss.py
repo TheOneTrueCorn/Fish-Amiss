@@ -120,10 +120,11 @@ def day_night():
 # end of function
 
 # starting variables
-money = 0
+money = 350
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
+shop_timer = 3
 fish_count = 1
 boss_fish = False
 
@@ -132,12 +133,13 @@ fish2_list = []
 fish3_list = []
 lunaris_plist = []
 
+shop_active = True
 paused = True
 title_screen = True
 clock = pygame.time.Clock()
 qte_key = 1
 side = "left"
-
+oranges = 0
 done = False
 while not done:
     keys = pygame.key.get_pressed()
@@ -222,6 +224,37 @@ while not done:
 
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
+
+    # shop is not available
+    if shop_active == False:
+        shop_timer -= delta_time
+        if shop_timer <= 0:
+            shop_timer = 3
+            shop_active = True
+        pygame.draw.rect(win, "white", (5, 80, 300, 30))
+        txt = font_obj3.render("Stock available in: " + str(int(shop_timer + 1)), False, (0, 0, 0))
+        win.blit(txt, (60, 85))
+
+    # shop is available
+    else:
+        if keys[pygame.K_1]:
+            if money >= 150:
+                shop_active = False
+                # player bought an orange
+                money -= 150
+                P.health += 30
+                if P.health > 100:
+                    P.health = 100
+        elif keys[pygame.K_2]:
+            if money >= 70:
+                shop_active = False
+                # player bought a cannon
+                money -= 70
+        elif keys[pygame.K_3]:
+            if money >= 250:
+                shop_active = False
+                # player bought a harpoon
+                money -= 250
 
     if title_screen:
         win.blit(title,(0,0))

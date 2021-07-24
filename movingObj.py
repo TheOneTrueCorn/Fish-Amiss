@@ -262,7 +262,7 @@ class BiggerFish(Player):
         self.side = side
         self.pos = vector.Vector2(x, y)
         self.radius = radius
-        self.fish_speed = 150
+        self.fish_speed = 200
         self.qte_key = qte_key
         self.area = (0,0,0,0)
         self.type = random.randint(1,2)
@@ -366,6 +366,10 @@ class FishProjectile(Player):
                 proj.proj_path(dt)
 
                 if proj.pos.y <= -player_rad:
+                    plist.remove(proj)
+                if proj.pos.x <= -player_rad:
+                    plist.remove(proj)
+                if proj.pos.x >= self.surf.get_width() + player_rad:
                     plist.remove(proj)
 
                 # check distance from projectile to player
