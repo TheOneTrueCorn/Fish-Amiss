@@ -183,7 +183,8 @@ while not done:
 
         # boss fish spawn
         if fish_count == 2 and len(fish3_list) < 1:
-            fish3_list.append(movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side))
+            B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
+            fish3_list.append(B)
             boss_fish = True
 
     win.fill((0, 0, 0))
@@ -203,15 +204,15 @@ while not done:
     for fish in fish3_list:
         fish.draw(hook_wurm)
         fish.update(delta_time, fish1_list)
-        fish.draw(hook_wurm)
-        fish.update(delta_time, fish3_list)
+        # fish.draw(hook_wurm)
+        # fish.update(delta_time, fish3_list)
 
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
 
-        if projectile_timer <= 0:
+        if projectile_timer <= 0 and B.moving == False:
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))

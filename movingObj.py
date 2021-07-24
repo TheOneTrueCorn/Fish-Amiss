@@ -310,7 +310,7 @@ class BossFish(Player):
         self.side = side
         self.pos = vector.Vector2(x, y)
         self.radius = radius
-        self.fish_speed = 100
+        self.fish_speed = 60
         self.moving = True
         self.proj_list = []
 
@@ -320,8 +320,8 @@ class BossFish(Player):
             self.pos.y -= self.fish_speed * dt
             # self.pos.x += random.randint(1, 2)
             # self.pos.x -= random.randint(1, 2)
-        if self.pos.y <= self.surf.get_height() - self.radius:
-            self.pos.y = self.surf.get_height() - self.radius
+        if self.pos.y <= self.surf.get_height() - 200:
+            self.pos.y = self.surf.get_height() - 200
             self.moving = False
         # if self.side == 1:
         #     self.pos.x += self.fish_speed * dt
@@ -345,7 +345,8 @@ class BossFish(Player):
 
     def draw(self,img):
        # pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
-       self.surf.blit(img,(self.pos.x - 170,self.pos.y - 260),(0,60,400,600))
+       self.surf.blit(img,(self.pos.x - 170,self.pos.y - 100),(0,60,400,600))
+       print(self.pos.y - 180)
 
 class FishProjectile(Player):
     def __init__(self, surf, x, y, radius, side, proj_speed):
