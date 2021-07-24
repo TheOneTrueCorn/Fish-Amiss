@@ -132,6 +132,7 @@ fish1_list = []
 fish2_list = []
 fish3_list = []
 lunaris_plist = []
+cannon_list = []
 
 shop_active = True
 paused = True
@@ -199,7 +200,7 @@ while not done:
 
     for fish in fish2_list:
         fish.draw(fishies)
-        fish.update(delta_time, fish2_list, fish1_list)
+        fish.update(delta_time, fish1_list, fish2_list)
 
     for fish in fish3_list:
         fish.draw(hook_wurm)
@@ -207,12 +208,15 @@ while not done:
         # fish.draw(hook_wurm)
         # fish.update(delta_time, fish3_list)
 
+    for cannon in cannon_list:
+        cannon.draw()
+        cannon.update(delta_time, fish1_list, fish2_list, fish3_list)
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
 
-        if projectile_timer <= 0 and B.moving == False:
+        if projectile_timer <= 0 and B.moving == False and len(fish3_list) > 0:
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
             lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
@@ -220,7 +224,12 @@ while not done:
 
         for proj in lunaris_plist:
             proj.draw()
-            P.health = proj.update(delta_time, lunaris_plist, P.pos.x, P.pos.y, P.radius, P.health, fish3_list[0].moving)
+            if len(fish3_list) > 0:
+                P.health = proj.update(delta_time, lunaris_plist, P.pos.x, P.pos.y, P.radius, P.health, fish3_list[0].moving)
+            else:
+                proj.pos.y += 50 * delta_time
+                if proj.pos.y >= win_height + proj.radius:
+                    lunaris_plist.remove(proj)
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     money = P.update(fish1_list, money)
@@ -251,6 +260,7 @@ while not done:
                 shop_active = False
                 # player bought a cannon
                 money -= 70
+                cannon_list.append(movingObj.Cannon(win, P.pos.x, P.pos.y))
         elif keys[pygame.K_3]:
             if money >= 250:
                 shop_active = False
@@ -264,9 +274,34 @@ while not done:
         win.blit(menu, (win_width / 2 - 350, win_height / 2 - 250))
         txt = font_obj2.render("Information Screen", False, (255, 255, 255))
         win.blit(txt, (400, 105))
+        txt = font_obj2.render("Return to Game: [U]", False, (255, 255, 255))
+        win.blit(txt, (170, 140))
+        txt = font_obj2.render("Fishing Rod: Right Click to Charge, Release to Throw", False, (255, 255, 255))
+        win.blit(txt, (170, 180))
+        txt = font_obj2.render("Lower/Raise Fish Hook: Scroll Button", False, (255, 255, 255))
+        win.blit(txt, (170, 220))
+        txt = font_obj2.render("Catch Fish: Press Cooresponding Fish Key that Appears", False, (255, 255, 255))
+        win.blit(txt, (170, 260))
+        txt = font_obj2.render("Possible Fish Keys: [E], [R], [F], [G], [C], [V]", False, (255, 255, 255))
+        win.blit(txt, (170, 300))
+        txt = font_obj2.render("Move Left/Right: [A] (left), [D] (right)", False, (255, 255, 255))
+        win.blit(txt, (170, 340))
+        txt = font_obj2.render("Purchase Item: Press Cooresponding Key in Shop Window", False, (255, 255, 255))
+        win.blit(txt, (170, 380))
+        txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
+        win.blit(txt, (170, 420))
 
     txt = font_obj2.render("[P] for info", False, (255, 255, 255))
     win.blit(txt, (450, 10))
+
+    # lost screen
+    if P.health <= 0:
+        lose_screen = pygame.Surface((win_width, win_height))
+        lose_screen.fill((255, 0, 0))
+        win.blit(lose_screen, (0, 0))
+        txt = font_obj.render("Your boat was destroyed", False, (0, 0, 0))
+        win.blit(txt, (340, 300))
+        delta_time = 0
 
     if title_screen:
         win.blit(title,(0,0))

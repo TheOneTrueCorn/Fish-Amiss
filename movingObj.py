@@ -16,7 +16,7 @@ class Player:
         self.area = (0,0,87,90)
         self.bar_area = (0,0,130,70)
         self.frame = 0
-        self.health = 100
+        self.health = 10
         self.harpoons = 1
         self.harpoon_is_active = False
         self.init_vel = 0
@@ -64,11 +64,11 @@ class Player:
             self.B.draw_bobber(self.surf, dt, self.pos, self.radius, event)
 
         # left and right movement
-        if keys[pygame.K_d] and self.casting != True:
+        if keys[pygame.K_d]:# and self.casting != True:
             self.pos.x += self.speed * dt
             self.frame += 1 * dt
 
-        if keys[pygame.K_a] and self.casting != True:
+        if keys[pygame.K_a]:# and self.casting != True:
             self.pos.x -= self.speed * dt
             self.frame += 1 * dt
 
@@ -286,19 +286,20 @@ class BiggerFish(Player):
                 self.radius = 60
 
         # remove fish if they go off screen
+        #for big_fish in big_fish_list:
         for big_fish in big_fish_list:
             if big_fish.pos.x > self.surf.get_width() + 2 * big_fish.radius:
                 big_fish_list.remove(big_fish)
             if big_fish.pos.x < -(2 * big_fish.radius):
                 big_fish_list.remove(big_fish)
 
-            # if a big fish hits a small fish, remove it
-            for lit_fish in bor_fish_list:
-                x_diff = big_fish.pos.x - lit_fish.pos.x
-                y_diff = big_fish.pos.y - lit_fish.pos.y
-                distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
-                if distance <= big_fish.radius + lit_fish.radius:
-                    big_fish_list.remove(big_fish)
+        # if a big fish hits a small fish, remove it
+        for lit_fish in bor_fish_list:
+            x_diff = self.pos.x - lit_fish.pos.x
+            y_diff = self.pos.y - lit_fish.pos.y
+            distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+            if distance <= self.radius + lit_fish.radius:
+                bor_fish_list.remove(lit_fish)
 
     def draw(self, img):
         self.surf.blit(img, (self.pos.x - 65, self.pos.y - 60), self.area)
@@ -313,6 +314,7 @@ class BossFish(Player):
         self.fish_speed = 60
         self.moving = True
         self.proj_list = []
+        self.health = 2
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -346,7 +348,6 @@ class BossFish(Player):
     def draw(self,img):
        # pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
        self.surf.blit(img,(self.pos.x - 170,self.pos.y - 100),(0,60,400,600))
-       print(self.pos.y - 180)
 
 class FishProjectile(Player):
     def __init__(self, surf, x, y, radius, side, proj_speed):
@@ -418,3 +419,40 @@ class Harpoon(Player):
         #dhat = (self.mouse_pos - self.cur_pos).normalized
         pygame.draw.line(self.surf, "grey", (self.pos), (self.mouse_pos), 3)
         pygame.draw.circle(self.surf, "black", (self.position), 20)
+
+class Cannon:
+    def __init__(self, surf, x, y):
+        self.surf = surf
+        self.radius = 20
+        self.pos = vector.Vector2(x + 40, y + 20)
+        self.velocity = vector.Vector2(0, 300)
+        self.hitbox = True
+
+    def update(self, dt, f1_list, f2_list, f3_list):
+        self.pos.y += self.velocity.y * dt
+
+        for lit_fish in f1_list:
+            dist = distance(lit_fish.pos.x, self.pos.x, lit_fish.pos.y, self.pos.y)
+            if dist <= lit_fish.radius + self.radius:
+                f1_list.remove(lit_fish)
+
+        for big_fish in f2_list:
+            dist = distance(big_fish.pos.x, self.pos.x, big_fish.pos.y, self.pos.y)
+            if dist <= big_fish.radius + self.radius:
+                f2_list.remove(big_fish)
+
+        for boss_fish in f3_list:
+            dist = distance(boss_fish.pos.x, self.pos.x, boss_fish.pos.y, self.pos.y)
+            if dist <= boss_fish.radius + self.radius and self.hitbox:
+                boss_fish.health -= 1
+                self.hitbox = False
+                if boss_fish.health <= 0:
+                    f3_list.remove(boss_fish)
+
+    def draw(self):
+        pygame.draw.circle(self.surf, (60, 60, 60), (self.pos), self.radius)
+
+def distance(x1, x2, y1, y2):
+    x_diff = x1 - x2
+    y_diff = y1 - y2
+    return (x_diff ** 2 + y_diff ** 2) ** 0.5
