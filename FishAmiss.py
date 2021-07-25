@@ -22,7 +22,6 @@ night_check1 = 0
 night_check2 = 0
 night_check3 = 0
 
-
 # images
 incomprehensible = pygame.image.load("vu'lphsted lunaris.png")
 fishies = pygame.image.load("fish.png")
@@ -32,6 +31,12 @@ title =pygame.image.load("fish amiss title.png")
 hook_wurm = pygame.image.load("big bois and harpoon.png")
 spews = pygame.image.load("spewer.png")
 player_bar = pygame.image.load("healthbar.png")
+
+#sound/music
+main_theme = "somber ocean.wav"
+pygame.mixer.init()
+pygame.mixer.music.load('somber ocean.wav')
+pygame.mixer.music.play(-1)
 
 time = "day"
 
