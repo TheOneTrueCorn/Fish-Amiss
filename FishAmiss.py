@@ -120,7 +120,7 @@ def day_night():
 # end of function
 
 # starting variables
-money = 350
+money = 1000
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -133,6 +133,7 @@ fish2_list = []
 fish3_list = []
 lunaris_plist = []
 cannon_list = []
+harpoon_list = []
 
 shop_active = True
 paused = True
@@ -143,6 +144,7 @@ side = "left"
 oranges = 0
 done = False
 while not done:
+    mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     delta_time = clock.tick() / 1000
     if keys[pygame.K_p] and paused == False:
@@ -212,6 +214,10 @@ while not done:
         cannon.draw()
         cannon.update(delta_time, fish1_list, fish2_list, fish3_list)
 
+    for harp in harpoon_list:
+        harp.draw(P.pos.x, P.pos.y)
+        money = harp.update(delta_time, P.pos.x, P.pos.y, harpoon_list, fish1_list, fish2_list, money)
+
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
@@ -266,6 +272,12 @@ while not done:
                 shop_active = False
                 # player bought a harpoon
                 money -= 250
+                mpos_x = mpos[0]
+                mpos_y = mpos[1]
+                init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(P.pos.x, P.pos.y)
+                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, init_vel[0], init_vel[1]))
+                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, 200, 0))
+                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, -200, 0))
 
     # options menu
     if paused:

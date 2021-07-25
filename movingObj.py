@@ -16,7 +16,7 @@ class Player:
         self.area = (0,0,87,90)
         self.bar_area = (0,0,130,70)
         self.frame = 0
-        self.health = 10
+        self.health = 100
         self.harpoons = 1
         self.harpoon_is_active = False
         self.init_vel = 0
@@ -118,8 +118,8 @@ class Player:
                 self.frame = 0
                 self.bar_area = self.bar_area = (145, -3, 140, 70)
 
-        for i in range(self.health):
-            pygame.draw.rect(self.surf,(100,255,200),(879 + (i * 0.95),31,1,10))
+        for hp in range(self.health):
+            pygame.draw.rect(self.surf,(100,255,200),(879 + (hp * 0.95),31,1,10))
         self.surf.blit(img,self.pos,self.area)
         self.surf.blit(bar_img,(870,10),self.bar_area)
 
@@ -266,6 +266,7 @@ class BiggerFish(Player):
         self.qte_key = qte_key
         self.area = (0,0,0,0)
         self.type = random.randint(1,2)
+        self.caught = False
 
     def update(self, dt, bor_fish_list, big_fish_list):
         # side is 1 (left screen), move right
@@ -294,12 +295,13 @@ class BiggerFish(Player):
                 big_fish_list.remove(big_fish)
 
         # if a big fish hits a small fish, remove it
-        for lit_fish in bor_fish_list:
-            x_diff = self.pos.x - lit_fish.pos.x
-            y_diff = self.pos.y - lit_fish.pos.y
-            distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
-            if distance <= self.radius + lit_fish.radius:
-                bor_fish_list.remove(lit_fish)
+        if self.caught != True:
+            for lit_fish in bor_fish_list:
+                x_diff = self.pos.x - lit_fish.pos.x
+                y_diff = self.pos.y - lit_fish.pos.y
+                distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+                if distance <= self.radius + lit_fish.radius:
+                    bor_fish_list.remove(lit_fish)
 
     def draw(self, img):
         self.surf.blit(img, (self.pos.x - 65, self.pos.y - 60), self.area)
@@ -396,29 +398,68 @@ class FishProjectile(Player):
         #     self.pos.x -= self.velocity.x * dt
         #self.pos.x -= self.velocity * dt
 
-class Harpoon(Player):
-    def __init__(self, surf, mx, my, velx, vely, hx, hy):
-        super().__init__(surf)
-        self.mouse_pos = vector.Vector2(mx, my)
+class Harpoon:
+    def __init__(self, surf, hx, hy, velx, vely):
+        self.surf = surf
         self.orientation = 0
         self.velocity = vector.Vector2(velx, vely)
-        self.position = vector.Vector2(hx, hy)
+        self.pos = vector.Vector2(hx, hy)
+        self.direction = "Down"
+        self.radius = 20
+        self.fish_num = 0
+        self.big_fish_value = 0
 
-    def update(self, dt):
-        adjacent = self.mouse_pos.x - self.pos.x
-        opposite = -(self.mouse_pos.y - self.pos.y)  # Negate because of pygame's inverted y-axis
-        # Make the ship turn towards the mouse
-        desired_angle = math.degrees(math.atan2(opposite, adjacent))  # The direction we WANT to face
-        self.orientation = self.orientation % 360  # Makes sure orientation is in the range 0...360
-        desired_angle = desired_angle % 360  # Makes sure desired_angle is in the range 0...360
-        self.orientation = desired_angle
+    def update(self, dt, Pposx, Pposy, harp_list, fish1_list, fish2_list, money):
+        if self.direction == "Down":
+            self.pos += self.velocity * dt
+            self.velocity.y += 250 * dt
+            if self.velocity.y == 0:
+                self.velocity.y = 0
+            if self.pos.y >= self.surf.get_height() - self.radius:
+                self.direction = "Up"
 
-        self.position += self.velocity * dt
+            elif self.pos.x >= self.surf.get_width() - self.radius:
+                self.direction = "Up"
 
-    def draw(self):
-        #dhat = (self.mouse_pos - self.cur_pos).normalized
-        pygame.draw.line(self.surf, "grey", (self.pos), (self.mouse_pos), 3)
-        pygame.draw.circle(self.surf, "black", (self.position), 20)
+            elif self.pos.x <= self.radius:
+                self.direction = "Up"
+
+        if self.direction == "Up":
+            returning_vel = vector.Vector2(Pposx, Pposy) - vector.Vector2(self.pos.x, self.pos.y)
+            self.pos += returning_vel * dt
+
+        for fish in fish1_list:
+            dist = distance(fish.pos.x, self.pos.x, fish.pos.y, self.pos.y)
+            if dist <= fish.radius + self.radius:
+                fish.pos = self.pos
+                if self.direction == "Up":
+                    if fish.pos.y <= 275:
+                        self.fish_num += 1
+                        fish1_list.remove(fish)
+
+        for fish in fish2_list:
+            dist = distance(fish.pos.x, self.pos.x, fish.pos.y, self.pos.y)
+            if dist <= fish.radius + self.radius:
+                fish.pos = self.pos
+                fish.caught = True
+                if self.direction == "Up":
+                    if fish.pos.y <= 275:
+                        self.big_fish_value = 300
+                        fish2_list.remove(fish)
+
+        for harp in harp_list:
+            if self.direction == "Up":
+                if harp.pos.y <= 270:
+                    harp_list.remove(harp)
+                    money += (random.randint(21, 27) * self.fish_num) + self.big_fish_value
+                    return money
+        return money
+
+        # when harpoon returns, it goes back to where it started, not your updated position
+
+    def draw(self, Pposx, Pposy):
+        pygame.draw.line(self.surf, "black", (Pposx + 45, Pposy + 30), (self.pos), 5)
+        pygame.draw.circle(self.surf, "black", (self.pos), self.radius)
 
 class Cannon:
     def __init__(self, surf, x, y):
