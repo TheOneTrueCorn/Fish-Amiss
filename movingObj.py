@@ -85,8 +85,8 @@ class Player:
                 fish.caught = False
 
         # this code doesn't allow you to go off screen
-        if self.pos.x > self.surf.get_width() - self.radius:
-            self.pos.x = self.surf.get_width() - self.radius
+        if self.pos.x > self.surf.get_width() - self.radius * 2:
+            self.pos.x = self.surf.get_width() - self.radius * 2
         if self.pos.x < 0:
             self.pos.x = 0
 
@@ -262,7 +262,7 @@ class BiggerFish(Player):
         self.side = side
         self.pos = vector.Vector2(x, y)
         self.radius = radius
-        self.fish_speed = 200
+        self.fish_speed = 300
         self.qte_key = qte_key
         self.area = (0,0,0,0)
         self.type = random.randint(1,2)
@@ -316,7 +316,8 @@ class BossFish(Player):
         self.fish_speed = 60
         self.moving = True
         self.proj_list = []
-        self.health = 2
+        self.health = 1
+        self.defeated = False
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -408,8 +409,10 @@ class Harpoon:
         self.radius = 20
         self.fish_num = 0
         self.big_fish_value = 0
+        self.harpoon_active = False
 
     def update(self, dt, Pposx, Pposy, harp_list, fish1_list, fish2_list, money):
+        self.harpoon_active = True
         if self.direction == "Down":
             self.pos += self.velocity * dt
             self.velocity.y += 250 * dt
@@ -452,14 +455,20 @@ class Harpoon:
                 if harp.pos.y <= 270:
                     harp_list.remove(harp)
                     money += (random.randint(21, 27) * self.fish_num) + self.big_fish_value
-                    return money
-        return money
+                    self.harpoon_active = False
+                    return money, self.harpoon_active
+                
+        return money, self.harpoon_active
 
         # when harpoon returns, it goes back to where it started, not your updated position
 
     def draw(self, Pposx, Pposy):
-        pygame.draw.line(self.surf, "black", (Pposx + 45, Pposy + 30), (self.pos), 5)
-        pygame.draw.circle(self.surf, "black", (self.pos), self.radius)
+        pygame.draw.line(self.surf, (107, 72, 12), (Pposx + 45, Pposy + 30), (self.pos), 5)
+        #pygame.draw.circle(self.surf, "black", (self.pos), self.radius)
+        A = self.pos.x + 15, self.pos.y
+        B = self.pos.x, self.pos.y + 30
+        C = self.pos.x - 15, self.pos.y
+        pygame.draw.polygon(self.surf, "light grey", (A, B, C))
 
 class Cannon:
     def __init__(self, surf, x, y):

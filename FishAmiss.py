@@ -125,10 +125,11 @@ def day_night():
 # end of function
 
 # starting variables
-money = 1000
+money = 70
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
+day_bonus_timer = 60
 shop_timer = 3
 fish_count = 1
 boss_fish = False
@@ -148,6 +149,8 @@ qte_key = 1
 side = "left"
 oranges = 0
 done = False
+harpoon_active = False
+Bosses = 0
 while not done:
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
@@ -161,6 +164,12 @@ while not done:
         delta_time = 0
         
     basic_fish_timer -= delta_time
+    day_bonus_timer -= delta_time
+
+    if day_bonus_timer <= 0:
+        money += 100
+        P.health += 20
+        day_bonus_timer = 60
 
     if basic_fish_timer <= 0:
         basic_fish_timer = 1
@@ -171,7 +180,7 @@ while not done:
             qte_key = 1
         # if side is 1, spawn on left side of screen
         if side == 1:
-            if len(fish1_list) < 6:
+            if len(fish1_list) < 10:
                 fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side, qte_key))
 
             if fish_count == 10:
@@ -181,7 +190,7 @@ while not done:
 
         # if side is 2, spawn on right side of screen
         elif side == 2:
-            if len(fish1_list) < 6:
+            if len(fish1_list) < 10:
                 fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height - 20), 20, side, qte_key))
 
             if fish_count == 10:
@@ -190,10 +199,14 @@ while not done:
                 fish_count = 1
 
         # boss fish spawn
-        if fish_count == 2 and len(fish3_list) < 1:
-            B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
-            fish3_list.append(B)
-            boss_fish = True
+        if day % 2 == 0 and len(fish3_list) < day / 2 and Bosses < day:
+            for i in range(int(day / 2)):
+                Bosses += 2
+                B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
+                fish3_list.append(B)
+                boss_fish = True
+        if day % 2 != 0:
+            Bosses = 0
 
     win.fill((0, 0, 0))
     day_night()
@@ -221,16 +234,17 @@ while not done:
 
     for harp in harpoon_list:
         harp.draw(P.pos.x, P.pos.y)
-        money = harp.update(delta_time, P.pos.x, P.pos.y, harpoon_list, fish1_list, fish2_list, money)
+        money, harpoon_active = harp.update(delta_time, P.pos.x, P.pos.y, harpoon_list, fish1_list, fish2_list, money)
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
 
         if projectile_timer <= 0 and B.moving == False and len(fish3_list) > 0:
-            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
-            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
-            lunaris_plist.append(movingObj.FishProjectile(win, fish3_list[0].pos.x, fish3_list[0].pos.y, 10, 0, 20))
+            for B in fish3_list:
+                lunaris_plist.append(movingObj.FishProjectile(win, B.pos.x, B.pos.y, 10, 0, 10))
+                lunaris_plist.append(movingObj.FishProjectile(win, B.pos.x, B.pos.y, 10, 0, 10))
+                lunaris_plist.append(movingObj.FishProjectile(win, B.pos.x, B.pos.y, 10, 0, 10))
             projectile_timer = 0.5
 
         for proj in lunaris_plist:
@@ -245,6 +259,9 @@ while not done:
 
     money = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list)
+
+    if P.health > 100:
+        P.health = 100
 
     # shop is not available
     if shop_active == False:
@@ -264,15 +281,13 @@ while not done:
                 # player bought an orange
                 money -= 150
                 P.health += 30
-                if P.health > 100:
-                    P.health = 100
         elif keys[pygame.K_2]:
             if money >= 70:
                 shop_active = False
                 # player bought a cannon
                 money -= 70
                 cannon_list.append(movingObj.Cannon(win, P.pos.x, P.pos.y))
-        elif keys[pygame.K_3]:
+        elif keys[pygame.K_3] and harpoon_active == False:
             if money >= 250:
                 shop_active = False
                 # player bought a harpoon
