@@ -36,8 +36,8 @@ forbidden_knowledge = pygame.image.load("eldritch foresight.png")
 #sound/music
 main_theme = "somber ocean.wav"
 pygame.mixer.init()
-pygame.mixer.music.load('somber ocean.wav')
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.load('somber ocean.wav')
+#pygame.mixer.music.play(-1)
 
 time = "day"
 
