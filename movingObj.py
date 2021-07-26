@@ -23,7 +23,7 @@ class Player:
         self.harpy = 0
         self.harpx = 0
 
-    def handle_input(self, dt, fish1_list):
+    def handle_input(self, dt, fish1_list,witnessed):
         event = pygame.event.poll()
         keys = pygame.key.get_pressed()
         mpos = pygame.mouse.get_pos()
@@ -63,7 +63,9 @@ class Player:
         if self.casting and self.B!=None:
             self.B.draw_bobber(self.surf, dt, self.pos, self.radius, event)
 
-        # left and right movement
+        # left and right movement / up and down
+        if witnessed:
+            self.speed = 350
         if keys[pygame.K_d]:# and self.casting != True:
             self.pos.x += self.speed * dt
             self.frame += 1 * dt
@@ -71,6 +73,12 @@ class Player:
         if keys[pygame.K_a]:# and self.casting != True:
             self.pos.x -= self.speed * dt
             self.frame += 1 * dt
+
+        if keys[pygame.K_w] and witnessed == True:
+            self.pos.y -= self.speed * dt
+
+        if keys[pygame.K_s] and witnessed == True:
+            self.pos.y += self.speed * dt
 
         # you retrieve your bobber when you press spacebar
         # but you can't retrieve it while you're casting

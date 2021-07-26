@@ -274,7 +274,7 @@ while not done:
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     money = P.update(fish1_list, money)
-    done = P.handle_input(delta_time, fish1_list)
+    done = P.handle_input(delta_time, fish1_list,beyond_revealed)
 
     if P.health > 100:
         P.health = 100
