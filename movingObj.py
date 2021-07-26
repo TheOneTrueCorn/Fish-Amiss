@@ -109,7 +109,7 @@ class Player:
                         return money
         return money
 
-    def draw_player(self,img,bar_img):
+    def draw_player(self,img,bar_img,revel):
         if self.frame > 0.25:
             self.area = (95,0,87,90)
             self.bar_area = self.bar_area = (0,0,130,70)
@@ -120,7 +120,10 @@ class Player:
 
         for hp in range(self.health):
             pygame.draw.rect(self.surf,(100,255,200),(879 + (hp * 0.95),31,1,10))
-        self.surf.blit(img,self.pos,self.area)
+        if not revel:
+            self.surf.blit(img,self.pos,self.area)
+        else:
+            self.surf.blit(img,self.pos)
         self.surf.blit(bar_img,(870,10),self.bar_area)
 
 class Bobber:

@@ -31,6 +31,7 @@ title =pygame.image.load("fish amiss title.png")
 hook_wurm = pygame.image.load("big bois and harpoon.png")
 spews = pygame.image.load("spewer.png")
 player_bar = pygame.image.load("healthbar.png")
+forbidden_knowledge = pygame.image.load("eldritch foresight.png")
 
 #sound/music
 main_theme = "somber ocean.wav"
@@ -66,7 +67,7 @@ def shop(win):
     pygame.draw.rect(win, (255, 255, 255), (5, 5, 300, 185), 3)
 
 
-def day_night():
+def day_night(reality_broken):
     global day
     #day night cycle
     global time
@@ -76,52 +77,61 @@ def day_night():
     global night_check1
     global night_check2
     global night_check3
-    if time == "day":
-        current_time[0] += day_night_cycle[0] * delta_time / 30
-        current_time[1] += day_night_cycle[1] * delta_time / 30
-        current_time[2] += day_night_cycle[2] * delta_time / 30
-        if current_time[0] >= background_color_day[0]:
-            current_time[0] = background_color_day[0]
-            day_check1 = 1
-        if current_time[1] >= background_color_day[1]:
-            current_time[1] = background_color_day[1]
-            day_check2 = 1
-        if current_time[2] >= background_color_day[2]:
-            current_time[2] = background_color_day[2]
-            day_check3 = 1
-        if day_check1 + day_check2 + day_check3 == 3:
-            time = "night"
-            day_check1 = 0
-            day_check2 = 0
-            day_check3 = 0
-    elif time == "night":
-        current_time[0] -= day_night_cycle[0] * delta_time / 30
-        current_time[1] -= day_night_cycle[1] * delta_time / 30
-        current_time[2] -= day_night_cycle[2] * delta_time / 30
-        if current_time[0] <= background_color_night[0]:
-            current_time[0] = background_color_night[0]
-            night_check1 = 1
-        if current_time[1] <= background_color_night[1]:
-            current_time[1] = background_color_night[1]
-            night_check2 = 1
-        if current_time[2] <= background_color_night[2]:
-            current_time[2] = background_color_night[2]
-            night_check3 = 1
-        if night_check1 + night_check2 + night_check3 == 3:
-            time = "day"
-            night_check1 = 0
-            night_check2 = 0
-            night_check3 = 0
-            day += 1
+    if reality_broken is False:
+        if time == "day":
+            current_time[0] += day_night_cycle[0] * delta_time / 30
+            current_time[1] += day_night_cycle[1] * delta_time / 30
+            current_time[2] += day_night_cycle[2] * delta_time / 30
+            if current_time[0] >= background_color_day[0]:
+                current_time[0] = background_color_day[0]
+                day_check1 = 1
+            if current_time[1] >= background_color_day[1]:
+                current_time[1] = background_color_day[1]
+                day_check2 = 1
+            if current_time[2] >= background_color_day[2]:
+                current_time[2] = background_color_day[2]
+                day_check3 = 1
+            if day_check1 + day_check2 + day_check3 == 3:
+                time = "night"
+                day_check1 = 0
+                day_check2 = 0
+                day_check3 = 0
+        elif time == "night":
+            current_time[0] -= day_night_cycle[0] * delta_time / 30
+            current_time[1] -= day_night_cycle[1] * delta_time / 30
+            current_time[2] -= day_night_cycle[2] * delta_time / 30
+            if current_time[0] <= background_color_night[0]:
+                current_time[0] = background_color_night[0]
+                night_check1 = 1
+            if current_time[1] <= background_color_night[1]:
+                current_time[1] = background_color_night[1]
+                night_check2 = 1
+            if current_time[2] <= background_color_night[2]:
+                current_time[2] = background_color_night[2]
+                night_check3 = 1
+            if night_check1 + night_check2 + night_check3 == 3:
+                time = "day"
+                night_check1 = 0
+                night_check2 = 0
+                night_check3 = 0
+                day += 1
 
-    win.fill(current_time)
-    sun.get_forward()
-    sun.update(delta_time)
-    sun.draw(win)
-    moon.get_forward()
-    moon.alt_update(delta_time)
-    moon.alt_draw(win,current_time)
-    pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
+        win.fill(current_time)
+        sun.get_forward()
+        sun.update(delta_time)
+        sun.draw(win,beyond_revealed,forbidden_knowledge)
+        moon.get_forward()
+        moon.alt_update(delta_time)
+        moon.alt_draw(win,current_time,beyond_revealed,forbidden_knowledge)
+        pygame.draw.rect(win,(current_time[0]/2,current_time[1]/2,current_time[2]),(0,250,1000,750))
+    else:
+        sun.get_forward()
+        sun.update(delta_time)
+        sun.draw(win,beyond_revealed,forbidden_knowledge)
+        moon.get_forward()
+        moon.alt_update(delta_time)
+        moon.alt_draw(win, current_time,beyond_revealed,forbidden_knowledge)
+
 # end of function
 
 # starting variables
@@ -151,6 +161,8 @@ oranges = 0
 done = False
 harpoon_active = False
 Bosses = 0
+beyond_revealed = False
+
 while not done:
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
@@ -166,7 +178,7 @@ while not done:
     basic_fish_timer -= delta_time
     day_bonus_timer -= delta_time
 
-    if day_bonus_timer <= 0:
+    if day_bonus_timer <= 0 and not beyond_revealed:
         money += 100
         P.health += 20
         day_bonus_timer = 60
@@ -208,11 +220,15 @@ while not done:
         if day % 2 != 0:
             Bosses = 0
 
-    win.fill((0, 0, 0))
-    day_night()
+    win.fill((random.randint(0,20),random.randint(0,20),random.randint(0,20)))
 
-    shop(win)
-    P.draw_player(playa,player_bar)
+    day_night(beyond_revealed)
+
+    if not beyond_revealed:
+        shop(win)
+        P.draw_player(playa,player_bar,beyond_revealed)
+    else:
+        P.draw_player(incomprehensible,player_bar,beyond_revealed)
 
     for fish in fish1_list:
         fish.draw(fishies)

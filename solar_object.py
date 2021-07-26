@@ -28,19 +28,26 @@ class backgroundObject:
         self.rotation_speed = 360
         self.angle -= self.rotation_speed * dt / 60
 
-    def draw(self,surf):
+    def draw(self,surf,ascended,img):
         dist = 425
         p0 = (self.start_pos[0], self.start_pos[1])
         forward = self.get_forward()
         end = vector.Vector2(p0[0], p0[1]) + forward * dist
-        pygame.draw.circle(surf,(self.sun_color),end,100)
+        if not ascended:
+            pygame.draw.circle(surf,(self.sun_color),end,100)
+        else:
+            surf.blit(img,end)
 
-    def alt_draw(self,surf,color):
+    def alt_draw(self,surf,color,ascended,img):
         dist = 425
         p0 = (self.start_pos[0], self.start_pos[1])
         forward = -self.get_forward()
         end = vector.Vector2(p0[0], p0[1]) + forward * dist
-        pygame.draw.circle(surf,(self.moon_color),end,80)
-        pygame.draw.circle(surf, (color), (end[0]-20,end[1]), 61)
+        if not ascended:
+            pygame.draw.circle(surf,(self.moon_color),end,80)
+            pygame.draw.circle(surf, (color), (end[0]-20,end[1]), 61)
+        else:
+            surf.blit(img,end)
+
 
 
