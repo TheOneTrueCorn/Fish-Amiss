@@ -22,6 +22,9 @@ class Player:
         self.init_vel = 0
         self.harpy = 0
         self.harpx = 0
+        self.orange_fish_caught = 0
+        self.red_fish_caught = 0
+        self.total_fish_caught = 0
 
     def handle_input(self, dt, fish1_list,witnessed):
         event = pygame.event.poll()
@@ -114,8 +117,14 @@ class Player:
                         money += random.randint(20, 27)
                         self.casting = False
                         self.caught_fish = 0
-                        return money
-        return money
+                        self.total_fish_caught += 1
+                        if fish.color == "orange":
+                            self.orange_fish_caught += 1
+                            return money, self.total_fish_caught, self.orange_fish_caught, self.red_fish_caught
+                        if fish.color == "red":
+                            self.red_fish_caught += 1
+                            return money, self.total_fish_caught, self.orange_fish_caught, self.red_fish_caught
+        return money, self.total_fish_caught, self.orange_fish_caught, self.red_fish_caught
 
     def draw_player(self,img,bar_img,revel):
         if self.frame > 0.25:
@@ -240,6 +249,7 @@ class BoringFish(Player):
         self.area = (0, 0, 0, 0)
         self.type = random.randint(1, 2)
         self.hitbox = True
+        self.color = None
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -247,15 +257,19 @@ class BoringFish(Player):
             self.pos.x += self.fish_speed * dt
             if self.type == 1:
                 self.area = (0, 0, 78, 75)
+                self.color = "orange"
             else:
                 self.area = (85, 0, 85, 70)
+                self.color = "red"
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
             if self.type == 1:
                 self.area = (78,70,90,80)
+                self.color = "orange"
             else:
                 self.area = (0, 70, 90, 80)
+                self.color = "red"
 
         # remove fish if they go off screen
         for fish in fish_list:
@@ -263,6 +277,8 @@ class BoringFish(Player):
                 fish_list.remove(fish)
             if fish.pos.x < -(2 * fish.radius):
                 fish_list.remove(fish)
+
+        return self.color
 
     def draw(self,img):
         self.surf.blit(img,(self.pos.x - 40,self.pos.y - 35 ),self.area)
@@ -278,22 +294,31 @@ class BiggerFish(Player):
         self.area = (0,0,0,0)
         self.type = random.randint(1,2)
         self.caught = False
+        self.total_big_fish_caught = 0
+        self.is_angler = None
+        self.is_shark = None
+        self.angler_caught = 0
+        self.shark_caught = 0
 
     def update(self, dt, bor_fish_list, big_fish_list):
         # side is 1 (left screen), move right
         if self.side == 1:
             self.pos.x += self.fish_speed * dt
             if self.type == 1:
+                self.is_angler = True
                 self.area = (200,0,125,90)
             else:
+                self.is_shark = True
                 self.area = (0, 150, 150, 100)
                 self.radius = 60
         # side is 2 (right screen), move left
         if self.side == 2:
             self.pos.x += -(self.fish_speed * dt)
             if self.type == 1:
+                self.is_angler = True
                 self.area = (330,0,125,90)
             else:
+                self.is_shark = True
                 self.area = (150, 150, 160, 100)
                 self.radius = 60
 
@@ -313,6 +338,8 @@ class BiggerFish(Player):
                 distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
                 if distance <= self.radius + lit_fish.radius:
                     bor_fish_list.remove(lit_fish)
+
+
 
     def draw(self, img):
         self.surf.blit(img, (self.pos.x - 65, self.pos.y - 60), self.area)
@@ -421,6 +448,7 @@ class Harpoon:
         self.fish_num = 0
         self.big_fish_value = 0
         self.harpoon_active = False
+        self.fish_on_a_stick = 0
 
     def update(self, dt, Pposx, Pposy, harp_list, fish1_list, fish2_list, money):
         self.harpoon_active = True
@@ -449,6 +477,7 @@ class Harpoon:
                 if self.direction == "Up":
                     if fish.pos.y <= 275:
                         self.fish_num += 1
+                        self.fish_on_a_stick += 1
                         fish1_list.remove(fish)
 
         for fish in fish2_list:
@@ -459,7 +488,14 @@ class Harpoon:
                 if self.direction == "Up":
                     if fish.pos.y <= 275:
                         self.big_fish_value = 300
+                        if fish.is_angler:
+                            fish.angler_caught += 1
+                        if fish.is_shark:
+                            fish.shark_caught += 1
+                        self.fish_on_a_stick += 1
                         fish2_list.remove(fish)
+                        return money, self.harpoon_active, fish.angler_caught, fish.shark_caught, self.fish_on_a_stick
+
 
         for harp in harp_list:
             if self.direction == "Up":
@@ -467,11 +503,9 @@ class Harpoon:
                     harp_list.remove(harp)
                     money += (random.randint(21, 27) * self.fish_num) + self.big_fish_value
                     self.harpoon_active = False
-                    return money, self.harpoon_active
+                    #return money, self.harpoon_active, None, None, None
                 
-        return money, self.harpoon_active
-
-        # when harpoon returns, it goes back to where it started, not your updated position
+        return money, self.harpoon_active, None, None, self.fish_on_a_stick
 
     def draw(self, Pposx, Pposy):
         pygame.draw.line(self.surf, (107, 72, 12), (Pposx + 45, Pposy + 30), (self.pos), 5)
@@ -488,18 +522,25 @@ class Cannon:
         self.pos = vector.Vector2(x + 40, y + 20)
         self.velocity = vector.Vector2(0, 300)
         self.hitbox = True
+        self.boss_kills = 0
+        self.kills = 0
 
-    def update(self, dt, f1_list, f2_list, f3_list):
+    def update(self, dt, f1_list, f2_list, f3_list, cannon_list):
         self.pos.y += self.velocity.y * dt
+        for cannon in cannon_list:
+            if cannon.pos.y >= self.surf.get_height() + cannon.radius:
+                cannon_list.remove(cannon)
 
         for lit_fish in f1_list:
             dist = distance(lit_fish.pos.x, self.pos.x, lit_fish.pos.y, self.pos.y)
             if dist <= lit_fish.radius + self.radius:
+                self.kills += 1
                 f1_list.remove(lit_fish)
 
         for big_fish in f2_list:
             dist = distance(big_fish.pos.x, self.pos.x, big_fish.pos.y, self.pos.y)
             if dist <= big_fish.radius + self.radius:
+                self.kills += 1
                 f2_list.remove(big_fish)
 
         for boss_fish in f3_list:
@@ -509,6 +550,9 @@ class Cannon:
                 self.hitbox = False
                 if boss_fish.health <= 0:
                     f3_list.remove(boss_fish)
+                    self.boss_kills += 1
+
+        return self.boss_kills, self.kills
 
     def draw(self):
         pygame.draw.circle(self.surf, (60, 60, 60), (self.pos), self.radius)

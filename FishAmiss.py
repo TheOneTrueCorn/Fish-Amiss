@@ -36,8 +36,8 @@ forbidden_knowledge = pygame.image.load("eldritch foresight.png")
 #sound/music
 main_theme = "somber ocean.wav"
 pygame.mixer.init()
-pygame.mixer.music.load('somber ocean.wav')
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.load('somber ocean.wav')
+#pygame.mixer.music.play(-1)
 
 time = "day"
 
@@ -56,7 +56,7 @@ def shop(win):
 
 
     win.blit(shops,(5,35))
-    money_txt = font_obj2.render("Cash:" + str(int(money)) + "$", False, (255, 255, 255))
+    money_txt = font_obj2.render("Cash:$" + str(int(money)), False, (255, 255, 255))
     win.blit(money_txt, (185, 160))
 
     money_txt = font_obj2.render("Day:" + str(day), False, (255, 255, 255))
@@ -135,7 +135,7 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
-money = 70
+money = 1000
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -162,19 +162,46 @@ done = False
 harpoon_active = False
 Bosses = 0
 beyond_revealed = False
+total_cannon_kills = 0
+
+# quests
+completed = True
+completed_quests = 0
+unlocked = True
+quest_menu = False
+quest1 = False
+quest2 = False
+quest3 = False
+quest4 = False
+quest5 = False
+quest6 = False
+quest7 = False
+quest8 = False
+quest9 = False
+quest10 = False
+angler_caught = 0
+shark_caught = 0
+big_fish_caught = 0
+fish_during_boss = 0
 
 while not done:
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     delta_time = clock.tick() / 1000
-    if keys[pygame.K_p] and paused == False:
+    if keys[pygame.K_p] and paused == False and quest_menu == False:
         paused = True
+    if keys[pygame.K_q] and paused == False and quest_menu == False:
+        quest_menu = True
     if keys[pygame.K_u] and paused == True:
         paused = False
         title_screen = False
+    if keys[pygame.K_u] and quest_menu == True:
+        quest_menu = False
     if paused:
         delta_time = 0
-        
+    if quest_menu:
+        delta_time = 0
+
     basic_fish_timer -= delta_time
     day_bonus_timer -= delta_time
 
@@ -221,7 +248,6 @@ while not done:
             Bosses = 0
 
     win.fill((random.randint(0,20),random.randint(0,20),random.randint(0,20)))
-
     day_night(beyond_revealed)
 
     if not beyond_revealed:
@@ -232,7 +258,7 @@ while not done:
 
     for fish in fish1_list:
         fish.draw(fishies)
-        fish.update(delta_time, fish1_list)
+        color = fish.update(delta_time, fish1_list)
 
     for fish in fish2_list:
         fish.draw(fishies)
@@ -246,12 +272,43 @@ while not done:
 
     for cannon in cannon_list:
         cannon.draw()
-        cannon.update(delta_time, fish1_list, fish2_list, fish3_list)
+        boss_kills, cannon_kills = cannon.update(delta_time, fish1_list, fish2_list, fish3_list, cannon_list)
+
+        if quest8 is not completed:
+            if cannon_kills >= 3:
+                quest8 = completed
+                completed_quests += 1
+                money += 150
+
+        if quest4 is not completed:
+            if boss_kills >= 1:
+                quest4 = completed
+                completed_quests += 1
+                money += 150
 
     for harp in harpoon_list:
         harp.draw(P.pos.x, P.pos.y)
-        money, harpoon_active = harp.update(delta_time, P.pos.x, P.pos.y, harpoon_list, fish1_list, fish2_list, money)
+        money, harpoon_active, angler_caught, shark_caught, total_fish_caught = harp.update(delta_time, P.pos.x, P.pos.y, harpoon_list, fish1_list, fish2_list, money)
 
+        if angler_caught is not None:
+            if quest5 is not completed:
+                if angler_caught > 0:
+                    quest5 = completed
+                    completed_quests += 1
+                    money += 150
+
+        if shark_caught is not None:
+            if quest6 is not completed:
+                if shark_caught > 0:
+                    quest6 = completed
+                    completed_quests += 1
+                    money += 150
+
+        if quest7 is not completed:
+            if total_fish_caught > 2:
+                quest7 = completed
+                completed_quests += 1
+                money += 75
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
@@ -273,7 +330,7 @@ while not done:
                     lunaris_plist.remove(proj)
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
-    money = P.update(fish1_list, money)
+    money, total_fish_caught, orange_fish_caught, red_fish_caught = P.update(fish1_list, money)
     done = P.handle_input(delta_time, fish1_list,beyond_revealed)
 
     if P.health > 100:
@@ -339,8 +396,103 @@ while not done:
         txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
         win.blit(txt, (170, 420))
 
+    if quest1 is not completed:
+        if total_fish_caught >= 3:
+            quest1 = completed
+            completed_quests += 1
+            money += 30
+
+    if quest2 is not completed:
+        if orange_fish_caught >= 5:
+            quest2 = completed
+            completed_quests += 1
+            money += 60
+
+    if quest3 is not completed:
+        if red_fish_caught >= 5:
+            quest3 = completed
+            completed_quests += 1
+            money += 60
+
+    #quest8 = completed
+
+    if completed_quests == 9:
+        quest10 = unlocked
+
+    # quest menu
+    if quest_menu:
+        menu = pygame.Surface((700, 500))
+        menu.fill((0, 0, 0))
+        win.blit(menu, (win_width / 2 - 350, win_height / 2 - 250))
+        txt = font_obj2.render("Quests", False, (255, 255, 255))
+        win.blit(txt, (450, 105))
+        txt = font_obj2.render("Return to Game: [U]", False, (255, 255, 255))
+        win.blit(txt, (170, 140))
+
+        if quest1 is completed:
+            quest1_txt = font_obj2.render("Catch 3 Fish: $30", False, (0, 255, 0))
+        else:
+            quest1_txt = font_obj2.render("Catch 3 Fish: $30", False, (255, 255, 255))
+        win.blit(quest1_txt, (170, 180))
+
+        if quest2 is completed:
+            quest2_txt = font_obj2.render("Catch 5 Orange Fish: $60", False, (0, 255, 0))
+        else:
+            quest2_txt = font_obj2.render("Catch 5 Orange Fish: $60 --- " + str(int(orange_fish_caught)) + " caught so far", False, (255, 255, 255))
+        win.blit(quest2_txt, (170, 220))
+
+        if quest3 is completed:
+            quest3_txt = font_obj2.render("Catch 5 Red Fish: $60", False, (0, 255, 0))
+        else:
+            quest3_txt = font_obj2.render("Catch 5 Red Fish: $60 --- " + str(int(red_fish_caught)) + " caught so far", False, (255, 255, 255))
+        win.blit(quest3_txt, (170, 260))
+
+        if quest4 is completed:
+            quest4_txt = font_obj2.render("Defeat a Boss Fish: $100", False, (0, 255, 0))
+        else:
+            quest4_txt = font_obj2.render("Defeat a Boss Fish: $100", False, (255, 255, 255))
+        win.blit(quest4_txt, (170, 300))
+
+        if quest5 is completed:
+            quest5_txt = font_obj2.render("Harpoon an Angler Fish: $75", False, (0, 255, 0))
+        else:
+            quest5_txt = font_obj2.render("Harpoon an Angler Fish: $75", False, (255, 255, 255))
+        win.blit(quest5_txt, (170, 340))
+
+        if quest6 is completed:
+            quest6_txt = font_obj2.render("Harpoon a Shark: $75", False, (0, 255, 0))
+        else:
+            quest6_txt = font_obj2.render("Harpoon a Shark: $75", False, (255, 255, 255))
+        win.blit(quest6_txt, (170, 380))
+
+        if quest7 is completed:
+            quest7_txt = font_obj2.render("Capture at Least 3 Fish with ONE Harpoon: $75", False, (0, 255, 0))
+        else:
+            quest7_txt = font_obj2.render("Capture at Least 3 Fish with ONE Harpoon: $75", False, (255, 255, 255))
+        win.blit(quest7_txt, (170, 420))
+
+        if quest8 is completed:
+            quest8_txt = font_obj2.render("Capture 3 Fish While a Boss Fish is Alive: $100", False, (0, 255, 0))
+        else:
+            quest8_txt = font_obj2.render("Capture 3 Fish While a Boss Fish is Alive: $100", False, (255, 255, 255))
+        win.blit(quest8_txt, (170, 460))
+
+        if quest9 is completed:
+            quest9_txt = font_obj2.render("Kill at Least 4 Fish of Any Type with a Single Cannon", False, (0, 255, 0))
+        else:
+            quest9_txt = font_obj2.render("Kill at Least 4 Fish of Any Type with a Single Cannon", False, (255, 255, 255))
+        win.blit(quest9_txt, (170, 500))
+
+        if quest10 is unlocked:
+            quest10_txt = font_obj2.render("YOU HAVE UNLOCKED THE SECRET QUEST", False, (0, 255, 0))
+        else:
+            quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO UNLOCK", False, (255, 0, 0))
+        win.blit(quest10_txt, (170, 540))
+
     txt = font_obj2.render("[P] for info", False, (255, 255, 255))
-    win.blit(txt, (450, 10))
+    win.blit(txt, (400, 10))
+    txt = font_obj2.render("[Q] for quests", False, (255, 255, 255))
+    win.blit(txt, (600, 10))
 
     # lost screen
     if P.health <= 0:
