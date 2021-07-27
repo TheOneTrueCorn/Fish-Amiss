@@ -414,7 +414,7 @@ while not done:
             completed_quests += 1
             money += 60
 
-    quest8 = completed
+    #quest8 = completed
 
     if completed_quests == 9:
         quest10 = unlocked
@@ -486,7 +486,7 @@ while not done:
         if quest10 is unlocked:
             quest10_txt = font_obj2.render("YOU HAVE UNLOCKED THE SECRET QUEST", False, (0, 255, 0))
         else:
-            quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO UNLOCK SOMETHING", False, (255, 0, 0))
+            quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO UNLOCK", False, (255, 0, 0))
         win.blit(quest10_txt, (170, 540))
 
     txt = font_obj2.render("[P] for info", False, (255, 255, 255))
