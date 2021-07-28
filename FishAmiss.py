@@ -135,7 +135,11 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
+
 money = 75
+
+money = 100
+
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -150,6 +154,7 @@ fish3_list = []
 lunaris_plist = []
 cannon_list = []
 harpoon_list = []
+cash_list = []
 
 shop_active = True
 paused = True
@@ -158,6 +163,8 @@ clock = pygame.time.Clock()
 qte_key = 1
 side = "left"
 oranges = 0
+cannons = 0
+harpoons = 0
 done = False
 harpoon_active = False
 Bosses = 0
@@ -186,6 +193,7 @@ angler_caught = 0
 shark_caught = 0
 big_fish_caught = 0
 fish_during_boss = 0
+amount = movingObj.CashReceived(money, win)
 
 music_timer = 0
 
@@ -325,6 +333,7 @@ while not done:
                 quest7 = completed
                 completed_quests += 1
                 money += 75
+
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
     if boss_fish == True:
         projectile_timer -= delta_time
@@ -369,18 +378,21 @@ while not done:
                 shop_active = False
                 # player bought an orange
                 money -= 150
+                oranges += 1
                 P.health += 30
         elif keys[pygame.K_2]:
             if money >= 70:
                 shop_active = False
                 # player bought a cannon
                 money -= 70
+                cannons += 1
                 cannon_list.append(movingObj.Cannon(win, P.pos.x, P.pos.y))
         elif keys[pygame.K_3] and harpoon_active == False:
             if money >= 250:
                 shop_active = False
                 # player bought a harpoon
                 money -= 250
+                harpoons += 1
                 mpos_x = mpos[0]
                 mpos_y = mpos[1]
                 init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(P.pos.x, P.pos.y)
@@ -409,8 +421,10 @@ while not done:
         win.blit(txt, (170, 340))
         txt = font_obj2.render("Purchase Item: Press Cooresponding Key in Shop Window", False, (255, 255, 255))
         win.blit(txt, (170, 380))
-        txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
+        txt = font_obj2.render("Retract Bobber: [Spacebar]", False, (255, 255, 255))
         win.blit(txt, (170, 420))
+        txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
+        win.blit(txt, (170, 460))
 
     if quest1 is not completed:
         if total_fish_caught >= 3:
@@ -516,11 +530,30 @@ while not done:
         lose_screen.fill((255, 0, 0))
         win.blit(lose_screen, (0, 0))
         txt = font_obj.render("Your boat was destroyed", False, (0, 0, 0))
+        win.blit(txt, (340, 200))
+        txt = font_obj.render("Days Survived: " + str(day), False, (0, 0, 0))
+        win.blit(txt, (340, 250))
+        txt = font_obj.render("Fish caught: " + str(total_fish_caught), False, (0, 0, 0))
         win.blit(txt, (340, 300))
+        txt = font_obj.render("Oranges Purchased: " + str(oranges), False, (0, 0, 0))
+        win.blit(txt, (340, 350))
+        txt = font_obj.render("Cannons Purchased: " + str(cannons), False, (0, 0, 0))
+        win.blit(txt, (340, 400))
+        txt = font_obj.render("Harpoons Purchased: " + str(harpoons), False, (0, 0, 0))
+        win.blit(txt, (340, 450))
+        txt = font_obj.render("Total Cash Earned: " + str(money + (oranges * 150) + (cannons * 70) + (harpoons * 250)), False, (0, 0, 0))
+        win.blit(txt, (340, 550))
         delta_time = 0
 
     if title_screen:
         win.blit(title,(0,0))
+        pygame.draw.rect(win, (0, 0, 0), (380, 537, 250, 50))
+        txt = font_obj2.render("Press [U] to Start", False, (200, 0, 0))
+        win.blit(txt, (400, 550))
+    #bruh = movingObj.Watcher(money).set_value(money)
 
+    # amount.set_value(money, P.pos.x, P.pos.y)
+    # if len(amount.cash_list) > 0:
+    #     amount.draw(current_time, delta_time)
     pygame.display.flip()
 pygame.quit()
