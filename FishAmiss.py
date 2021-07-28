@@ -34,10 +34,10 @@ player_bar = pygame.image.load("healthbar.png")
 forbidden_knowledge = pygame.image.load("eldritch foresight.png")
 
 #sound/music
-main_theme = "somber ocean.wav"
+# main_theme = "somber ocean.wav"
 pygame.mixer.init()
-#pygame.mixer.music.load('somber ocean.wav')
-#pygame.mixer.music.play(-1)
+pygame.mixer.music.load('somber ocean.wav')
+pygame.mixer.music.play(-1)
 
 time = "day"
 
@@ -135,7 +135,7 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
-money = 1000
+money = 75
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -164,6 +164,9 @@ Bosses = 0
 beyond_revealed = False
 total_cannon_kills = 0
 
+
+
+
 # quests
 completed = True
 completed_quests = 0
@@ -184,7 +187,14 @@ shark_caught = 0
 big_fish_caught = 0
 fish_during_boss = 0
 
+music_timer = 0
+
 while not done:
+    beyond_revealed = True
+
+
+
+
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     delta_time = clock.tick() / 1000
@@ -201,6 +211,12 @@ while not done:
         delta_time = 0
     if quest_menu:
         delta_time = 0
+
+    music_timer += 1 * delta_time
+    if beyond_revealed and music_timer >= 31:
+        music_timer = 0
+        pygame.mixer.music.load("amalgamation of waste.wav")
+        pygame.mixer.music.play()
 
     basic_fish_timer -= delta_time
     day_bonus_timer -= delta_time

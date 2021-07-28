@@ -73,6 +73,7 @@ class Player:
             self.pos.x += self.speed * dt
             self.frame += 1 * dt
 
+
         if keys[pygame.K_a]:# and self.casting != True:
             self.pos.x -= self.speed * dt
             self.frame += 1 * dt
@@ -129,11 +130,11 @@ class Player:
     def draw_player(self,img,bar_img,revel):
         if self.frame > 0.25:
             self.area = (95,0,87,90)
-            self.bar_area = self.bar_area = (0,0,130,70)
+            self.bar_area = (0,0,130,70)
             if self.frame > 0.5:
                 self.area = (0,0,87,90)
                 self.frame = 0
-                self.bar_area = self.bar_area = (145, -3, 140, 70)
+                # self.bar_area = (145, -3, 140, 70)
 
         for hp in range(self.health):
             pygame.draw.rect(self.surf,(100,255,200),(879 + (hp * 0.95),31,1,10))
