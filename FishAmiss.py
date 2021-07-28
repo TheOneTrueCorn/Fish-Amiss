@@ -518,6 +518,7 @@ while not done:
             quest10_txt = font_obj2.render("DEFEAT THE AWAKENED ONE", False, (255, 0, 0))
             txtx = font_obj3.render("Return to Game: [U]", False, (255, 255, 255))
             win.blit(txtx, (400, 600))
+            music_timer = 30.75
             beyond_revealed = True
             win.blit(quest10_txt, (350, 340))
 
