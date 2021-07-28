@@ -53,7 +53,7 @@ class Player:
         #     H.draw()
 
         # if clicking, draw a line from boat to mouse pos
-        if mbuttons[2]:
+        if mbuttons[2] and self.casting is not True:
             pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y + 20), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
@@ -107,9 +107,10 @@ class Player:
     def update(self, flist, money):
         for fish in flist:
             if self.B != None and fish.hitbox == True:
-                caught_fish = self.B.hooked(fish.pos.x, fish.pos.y, fish.radius, self.surf, fish.qte_key)
+                caught_fish = self.B.hooked(fish.pos.x, fish.pos.y, fish.radius, self.surf, fish.qte_key, fish.pulling)
                 if caught_fish:
                     fish.caught = True
+                    fish.pulling = True
                 if fish.caught:
                     fish.pos.x = self.B.hook_x
                     fish.pos.y = self.B.hook_y
@@ -156,6 +157,7 @@ class Bobber:
         self.hook_x = None
         self.hook_y = None
 
+
     def draw_bobber(self, surf, dt, player_pos, player_rad, event):
         #global hook_x, hook_y
         self.position += self.velocity * dt
@@ -196,7 +198,7 @@ class Bobber:
         pygame.draw.line(surf, "white", (player_pos.x + player_rad / 2, player_pos.y + 20), (self.position))
         pygame.draw.circle(surf, self.color, self.position, self.radius)
 
-    def hooked(self, fish_x, fish_y, fish_rad, surf, qte_key):
+    def hooked(self, fish_x, fish_y, fish_rad, surf, qte_key, fish_pulling):
         # checks distance from hook to fish
         if self.hook_x != None and self.hook_y != None:
             x_diff = fish_x - self.hook_x
@@ -208,35 +210,41 @@ class Bobber:
 
                 # if hook is over a fish, show text box with random key, return true if correct key is pressed
                 if qte_key == 1:
-                    qte_key = "R"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_r]
+                    qte_key = "S"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_s]
                 if qte_key == 2:
-                    qte_key = "T"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_t]
+                    qte_key = "W"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_w]
                 if qte_key == 3:
-                    qte_key = "F"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_f]
+                    qte_key = "E"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_e]
                 if qte_key == 4:
-                    qte_key = "G"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_g]
+                    qte_key = "R"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_r]
                 if qte_key == 5:
-                    qte_key = "C"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_c]
+                    qte_key = "T"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_t]
                 if qte_key == 6:
-                    qte_key = "V"
-                    txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
-                    surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
-                    return keys[pygame.K_v]
+                    qte_key = "F"
+                    if fish_pulling is not True:
+                        txt = font.render("press [" + str(qte_key) + "]", False, (255, 255, 255))
+                        surf.blit(txt, (self.hook_x - 30, self.hook_y + 10))
+                    return keys[pygame.K_f]
 
 class BoringFish(Player):
     def __init__(self, surf, x, y, radius, side, qte_key):
@@ -251,6 +259,7 @@ class BoringFish(Player):
         self.type = random.randint(1, 2)
         self.hitbox = True
         self.color = None
+        self.pulling = False
 
     def update(self, dt, fish_list):
         # side is 1 (left screen), move right
@@ -557,6 +566,78 @@ class Cannon:
 
     def draw(self):
         pygame.draw.circle(self.surf, (60, 60, 60), (self.pos), self.radius)
+
+class CashReceived:
+    def __init__(self, value, surf):
+        self.variable = value
+        self.surf = surf
+        # self.R = 255
+        # self.G = 255
+        # self.B = 255
+        self.x = None
+        self.y = None
+        self.cash_list = []
+
+    def set_value(self, new_value, x, y):
+        if new_value > self.variable:
+            self.x = x
+            self.y = y
+            self.pre_change()
+            self.variable = new_value
+            self.post_change()
+            # self.check1 = False
+            # self.check2 = False
+            # self.check3 = False
+            #return self.variable
+            print("B")
+
+    def pre_change(self):
+        print("IS ABOUT TO CHANGE" + str(self.variable))  # do stuff before variable is about to be changed
+
+    def post_change(self):
+        self.cash_list.append(self.variable)
+        print("IS CHANGED" + str(self.cash_list))  # do stuff right after variable has changed
+
+    def draw(self, current_time, dt):
+        pass
+        # for val in self.cash_list:
+        #     font = pygame.font.SysFont("Courier New", 20, True)
+        #     if len(self.cash_list) > 0:
+        #         R = 255 - current_time.x
+        #         G = 255 - current_time.y
+        #         B = 255 - current_time.z
+        #
+        #     else:
+        #         R = 255 - current_time.x
+        #         G = 255 - current_time.y
+        #         B = 255 - current_time.z
+        #     # R -= 60 * dt
+        #     # G -= 60 * dt
+        #     # B -= 60 * dt
+        #     if R <= current_time.x:
+        #         R = current_time.x
+        #         self.check1 = True
+        #     if G <= current_time.y:
+        #         G = current_time.y
+        #         self.check2 = True
+        #     if B <= current_time.z:
+        #         B = current_time.z
+        #         self.check3 = True
+        #     if self.check1 is True and self.check2 is True and self.check3 is True:
+        #         self.cash_list.remove(val)
+        #     else:
+        #         txt = font.render("+ $" + str(val), False, (R, G, B))
+        #         self.surf.blit(txt, (self.x, self.y))
+
+
+class Watcher:
+    def __init__(self, value):
+        self.variable = value
+
+    def set_value(self, new_value):
+        if new_value > self.variable:
+            self.variable = new_value
+            return self.variable
 
 def distance(x1, x2, y1, y2):
     x_diff = x1 - x2
