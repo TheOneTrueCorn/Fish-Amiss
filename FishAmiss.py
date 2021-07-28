@@ -135,7 +135,7 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
-money = 100
+money = 1000
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -193,15 +193,11 @@ fish_during_boss = 0
 music_timer = 0
 
 while not done:
-    beyond_revealed = False
-
-
-
 
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     delta_time = clock.tick() / 1000
-    if keys[pygame.K_p] and paused == False and quest_menu == False:
+    if keys[pygame.K_p] and paused == False and quest_menu == False and beyond_revealed is False:
         paused = True
     if keys[pygame.K_q] and paused == False and quest_menu == False:
         quest_menu = True
@@ -229,6 +225,7 @@ while not done:
         P.health += 20
         day_bonus_timer = 60
 
+    # spawn fishies!
     if basic_fish_timer <= 0:
         basic_fish_timer = 1
         side = random.randint(1, 2)
@@ -269,33 +266,35 @@ while not done:
     win.fill((random.randint(0,20),random.randint(0,20),random.randint(0,20)))
     day_night(beyond_revealed)
 
-    if not beyond_revealed:
+    if beyond_revealed is False:
         shop(win)
         P.draw_player(playa,player_bar,beyond_revealed)
     else:
         P.draw_player(incomprehensible,player_bar,beyond_revealed)
 
-    for fish in fish1_list:
-        fish.draw(fishies)
-        color = fish.update(delta_time, fish1_list)
+    # as long as endgame is false, update and draw all the fishes
+    if beyond_revealed is False:
+        for fish in fish1_list:
+            fish.draw(fishies)
+            color = fish.update(delta_time, fish1_list)
 
-    for fish in fish2_list:
-        fish.draw(fishies)
-        fish.update(delta_time, fish1_list, fish2_list)
+        for fish in fish2_list:
+            fish.draw(fishies)
+            fish.update(delta_time, fish1_list, fish2_list)
 
-    for fish in fish3_list:
-        fish.draw(hook_wurm)
-        fish.update(delta_time, fish1_list)
-        # fish.draw(hook_wurm)
-        # fish.update(delta_time, fish3_list)
+        for fish in fish3_list:
+            fish.draw(hook_wurm)
+            fish.update(delta_time, fish1_list)
+            # fish.draw(hook_wurm)
+            # fish.update(delta_time, fish3_list)
 
     for cannon in cannon_list:
         cannon.draw()
         boss_kills, cannon_kills = cannon.update(delta_time, fish1_list, fish2_list, fish3_list, cannon_list)
 
-        if quest8 is not completed:
+        if quest9 is not completed:
             if cannon_kills >= 3:
-                quest8 = completed
+                quest9 = completed
                 completed_quests += 1
                 money += 150
 
@@ -357,43 +356,44 @@ while not done:
         P.health = 100
 
     # shop is not available
-    if shop_active == False:
-        shop_timer -= delta_time
-        if shop_timer <= 0:
-            shop_timer = 3
-            shop_active = True
-        pygame.draw.rect(win, "white", (5, 80, 300, 30))
-        txt = font_obj3.render("Stock available in: " + str(int(shop_timer + 1)), False, (0, 0, 0))
-        win.blit(txt, (60, 85))
+    if beyond_revealed is False:
+        if shop_active == False:
+            shop_timer -= delta_time
+            if shop_timer <= 0:
+                shop_timer = 3
+                shop_active = True
+            pygame.draw.rect(win, "white", (5, 80, 300, 30))
+            txt = font_obj3.render("Stock available in: " + str(int(shop_timer + 1)), False, (0, 0, 0))
+            win.blit(txt, (60, 85))
 
-    # shop is available
-    else:
-        if keys[pygame.K_1]:
-            if money >= 150:
-                shop_active = False
-                # player bought an orange
-                money -= 150
-                oranges += 1
-                P.health += 30
-        elif keys[pygame.K_2]:
-            if money >= 70:
-                shop_active = False
-                # player bought a cannon
-                money -= 70
-                cannons += 1
-                cannon_list.append(movingObj.Cannon(win, P.pos.x, P.pos.y))
-        elif keys[pygame.K_3] and harpoon_active == False:
-            if money >= 250:
-                shop_active = False
-                # player bought a harpoon
-                money -= 250
-                harpoons += 1
-                mpos_x = mpos[0]
-                mpos_y = mpos[1]
-                init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(P.pos.x, P.pos.y)
-                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, init_vel[0], init_vel[1]))
-                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, 200, 0))
-                harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, -200, 0))
+        # shop is available
+        else:
+            if keys[pygame.K_1]:
+                if money >= 150:
+                    shop_active = False
+                    # player bought an orange
+                    money -= 150
+                    oranges += 1
+                    P.health += 30
+            elif keys[pygame.K_2]:
+                if money >= 70:
+                    shop_active = False
+                    # player bought a cannon
+                    money -= 70
+                    cannons += 1
+                    cannon_list.append(movingObj.Cannon(win, P.pos.x, P.pos.y))
+            elif keys[pygame.K_3] and harpoon_active == False:
+                if money >= 250:
+                    shop_active = False
+                    # player bought a harpoon
+                    money -= 250
+                    harpoons += 1
+                    mpos_x = mpos[0]
+                    mpos_y = mpos[1]
+                    init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(P.pos.x, P.pos.y)
+                    harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, init_vel[0], init_vel[1]))
+                    harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, 200, 0))
+                    harpoon_list.append(movingObj.Harpoon(win, P.pos.x, P.pos.y, -200, 0))
 
     # options menu
     if paused:
@@ -410,7 +410,7 @@ while not done:
         win.blit(txt, (170, 220))
         txt = font_obj2.render("Catch Fish: Press Cooresponding Fish Key that Appears", False, (255, 255, 255))
         win.blit(txt, (170, 260))
-        txt = font_obj2.render("Possible Fish Keys: [E], [R], [F], [G], [C], [V]", False, (255, 255, 255))
+        txt = font_obj2.render("Possible Fish Keys: [W], [E], [R], [T], [F], [S]", False, (255, 255, 255))
         win.blit(txt, (170, 300))
         txt = font_obj2.render("Move Left/Right: [A] (left), [D] (right)", False, (255, 255, 255))
         win.blit(txt, (170, 340))
@@ -439,10 +439,15 @@ while not done:
             completed_quests += 1
             money += 60
 
-    #quest8 = completed
+    if quest8 is not completed:
+        if oranges >= 4:
+            quest8 = completed
+            completed_quests += 1
+            money += 60
 
     if completed_quests == 9:
         quest10 = unlocked
+    completed_quests = 9
 
     # quest menu
     if quest_menu:
@@ -497,27 +502,34 @@ while not done:
         win.blit(quest7_txt, (170, 420))
 
         if quest8 is completed:
-            quest8_txt = font_obj2.render("Capture 3 Fish While a Boss Fish is Alive: $100", False, (0, 255, 0))
+            quest8_txt = font_obj2.render("Purchase 4 Oranges: $100", False, (0, 255, 0))
         else:
-            quest8_txt = font_obj2.render("Capture 3 Fish While a Boss Fish is Alive: $100", False, (255, 255, 255))
+            quest8_txt = font_obj2.render("Purchase 4 Oranges: $100 --- " + str(oranges) + " Purchased so Far", False, (255, 255, 255))
         win.blit(quest8_txt, (170, 460))
 
         if quest9 is completed:
-            quest9_txt = font_obj2.render("Kill at Least 4 Fish of Any Type with a Single Cannon", False, (0, 255, 0))
+            quest9_txt = font_obj2.render("Kill at Least 3 Fish of Any Type with a Single Cannon", False, (0, 255, 0))
         else:
-            quest9_txt = font_obj2.render("Kill at Least 4 Fish of Any Type with a Single Cannon", False, (255, 255, 255))
+            quest9_txt = font_obj2.render("Kill at Least 3 Fish of Any Type with a Single Cannon", False, (255, 255, 255))
         win.blit(quest9_txt, (170, 500))
 
         if quest10 is unlocked:
-            quest10_txt = font_obj2.render("YOU HAVE UNLOCKED THE SECRET QUEST", False, (0, 255, 0))
+            win.fill((0, 0, 0))
+            quest10_txt = font_obj2.render("DEFEAT THE AWAKENED ONE", False, (255, 0, 0))
+            txtx = font_obj3.render("Return to Game: [U]", False, (255, 255, 255))
+            win.blit(txtx, (400, 600))
+            beyond_revealed = True
+            win.blit(quest10_txt, (350, 340))
+
         else:
             quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO UNLOCK", False, (255, 0, 0))
-        win.blit(quest10_txt, (170, 540))
+            win.blit(quest10_txt, (170, 540))
 
-    txt = font_obj2.render("[P] for info", False, (255, 255, 255))
-    win.blit(txt, (400, 10))
-    txt = font_obj2.render("[Q] for quests", False, (255, 255, 255))
-    win.blit(txt, (600, 10))
+    if beyond_revealed is False:
+        txt = font_obj2.render("[P] for info", False, (255, 255, 255))
+        win.blit(txt, (400, 10))
+        txt = font_obj2.render("[Q] for quests", False, (255, 255, 255))
+        win.blit(txt, (600, 10))
 
     # lost screen
     if P.health <= 0:
@@ -545,10 +557,6 @@ while not done:
         pygame.draw.rect(win, (0, 0, 0), (380, 537, 250, 50))
         txt = font_obj2.render("Press [U] to Start", False, (200, 0, 0))
         win.blit(txt, (400, 550))
-    #bruh = movingObj.Watcher(money).set_value(money)
 
-    # amount.set_value(money, P.pos.x, P.pos.y)
-    # if len(amount.cash_list) > 0:
-    #     amount.draw(current_time, delta_time)
     pygame.display.flip()
 pygame.quit()

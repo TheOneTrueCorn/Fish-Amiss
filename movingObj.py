@@ -53,11 +53,11 @@ class Player:
         #     H.draw()
 
         # if clicking, draw a line from boat to mouse pos
-        if mbuttons[2] and self.casting is not True:
+        if mbuttons[2] and self.casting is not True and witnessed is False:
             pygame.draw.line(self.surf, "red", (self.pos.x + self.radius / 2, self.pos.y + 20), (mpos[0], mpos[1]), 2)
 
         # if clicking, you are casting your line, so create a Bobber
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and self.casting != True:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 3 and self.casting != True and witnessed is False:
             self.casting = True
             init_vel = vector.Vector2(self.pos.x + self.radius / 2, self.pos.y) - vector.Vector2(mpos[0], mpos[1])
             self.B = Bobber(self.pos.x + self.radius / 2, self.pos.y, init_vel.x, init_vel.y, 10)
@@ -101,8 +101,6 @@ class Player:
             self.pos.x = self.surf.get_width() - self.radius * 2
         if self.pos.x < 0:
             self.pos.x = 0
-
-
 
     def update(self, flist, money):
         for fish in flist:
@@ -497,7 +495,7 @@ class Harpoon:
                 fish.caught = True
                 if self.direction == "Up":
                     if fish.pos.y <= 275:
-                        self.big_fish_value = 300
+                        self.big_fish_value = 220
                         if fish.is_angler:
                             fish.angler_caught += 1
                         if fish.is_shark:
@@ -566,78 +564,6 @@ class Cannon:
 
     def draw(self):
         pygame.draw.circle(self.surf, (60, 60, 60), (self.pos), self.radius)
-
-class CashReceived:
-    def __init__(self, value, surf):
-        self.variable = value
-        self.surf = surf
-        # self.R = 255
-        # self.G = 255
-        # self.B = 255
-        self.x = None
-        self.y = None
-        self.cash_list = []
-
-    def set_value(self, new_value, x, y):
-        if new_value > self.variable:
-            self.x = x
-            self.y = y
-            self.pre_change()
-            self.variable = new_value
-            self.post_change()
-            # self.check1 = False
-            # self.check2 = False
-            # self.check3 = False
-            #return self.variable
-            print("B")
-
-    def pre_change(self):
-        print("IS ABOUT TO CHANGE" + str(self.variable))  # do stuff before variable is about to be changed
-
-    def post_change(self):
-        self.cash_list.append(self.variable)
-        print("IS CHANGED" + str(self.cash_list))  # do stuff right after variable has changed
-
-    def draw(self, current_time, dt):
-        pass
-        # for val in self.cash_list:
-        #     font = pygame.font.SysFont("Courier New", 20, True)
-        #     if len(self.cash_list) > 0:
-        #         R = 255 - current_time.x
-        #         G = 255 - current_time.y
-        #         B = 255 - current_time.z
-        #
-        #     else:
-        #         R = 255 - current_time.x
-        #         G = 255 - current_time.y
-        #         B = 255 - current_time.z
-        #     # R -= 60 * dt
-        #     # G -= 60 * dt
-        #     # B -= 60 * dt
-        #     if R <= current_time.x:
-        #         R = current_time.x
-        #         self.check1 = True
-        #     if G <= current_time.y:
-        #         G = current_time.y
-        #         self.check2 = True
-        #     if B <= current_time.z:
-        #         B = current_time.z
-        #         self.check3 = True
-        #     if self.check1 is True and self.check2 is True and self.check3 is True:
-        #         self.cash_list.remove(val)
-        #     else:
-        #         txt = font.render("+ $" + str(val), False, (R, G, B))
-        #         self.surf.blit(txt, (self.x, self.y))
-
-
-class Watcher:
-    def __init__(self, value):
-        self.variable = value
-
-    def set_value(self, new_value):
-        if new_value > self.variable:
-            self.variable = new_value
-            return self.variable
 
 def distance(x1, x2, y1, y2):
     x_diff = x1 - x2
