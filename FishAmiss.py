@@ -135,11 +135,7 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
-
-money = 75
-
 money = 100
-
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -193,12 +189,11 @@ angler_caught = 0
 shark_caught = 0
 big_fish_caught = 0
 fish_during_boss = 0
-amount = movingObj.CashReceived(money, win)
 
 music_timer = 0
 
 while not done:
-    beyond_revealed = True
+    beyond_revealed = False
 
 
 
