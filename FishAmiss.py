@@ -42,8 +42,8 @@ pygame.mixer.music.play(-1)
 time = "day"
 
 P = movingObj.Player(win)
-sun = solar_object.backgroundObject(500,350)
-moon = solar_object.backgroundObject(500,350)
+sun = solar_object.BackgroundObject(500,350)
+moon = solar_object.BackgroundObject(500,350)
 font_obj = pygame.font.SysFont("Courier New", 25)
 font_obj2 = pygame.font.SysFont("Courier New", 20)
 font_obj3 = pygame.font.SysFont("Courier New", 15)
@@ -135,7 +135,7 @@ def day_night(reality_broken):
 # end of function
 
 # starting variables
-money = 1000
+money = 75
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
@@ -199,7 +199,8 @@ while not done:
 
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
-    delta_time = clock.tick() / 1000
+    if P.health > 0:
+        delta_time = clock.tick() / 1000
     if keys[pygame.K_p] and paused == False and quest_menu == False and beyond_revealed is False:
         paused = True
     if keys[pygame.K_q] and paused == False and quest_menu == False:
@@ -276,6 +277,7 @@ while not done:
         P.draw_player(playa,player_bar,beyond_revealed)
     else:
         P.draw_player(incomprehensible,player_bar,beyond_revealed)
+        P.health += 3 * delta_time
 
     # as long as endgame is false, update and draw all the fishes
     if beyond_revealed is False:
@@ -355,7 +357,7 @@ while not done:
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     money, total_fish_caught, orange_fish_caught, red_fish_caught = P.update(fish1_list, money)
-    done = P.handle_input(delta_time, fish1_list,beyond_revealed, fish4_list)
+    done = P.handle_input(delta_time, fish1_list,beyond_revealed, fish4_list,sun,moon)
 
     if P.health > 100:
         P.health = 100
@@ -454,7 +456,7 @@ while not done:
         if completed_quests == 9:
             quest10 = unlocked
 
-    #completed_quests = 9
+    # completed_quests = 9
 
     # quest menu
     if quest_menu:
@@ -541,6 +543,7 @@ while not done:
 
     # lost screen
     if P.health <= 0:
+        delta_time = 0
         if beyond_revealed is True:
             for i in fish4_list:
                 fish4_list.remove(i)
@@ -566,22 +569,27 @@ while not done:
         if beyond_revealed is True:
             txt = font_obj.render("You Have Seen the Great Beyond...", False, (0, 0, 0))
             win.blit(txt, (270, 500))
-            txt = font_obj.render("Thanks for Playing! :D", False, (0, 0, 0))
+            txt = font_obj.render("Thanks for Playing! :D", False, (0,0,0))
             win.blit(txt, (270, 550))
+            txt = font_obj3.render("Developed by Trey Davidson and Zach Whitten. All sprites and music developed by Trey Davidson.",False,(0,0,0))
+            win.blit(txt,(10,680))
         else:
             txt = font_obj.render("Your Quest for the Truth Sank with Your Boat...", False, (0, 0, 0))
             win.blit(txt, (160, 500))
+            txt = font_obj3.render(
+                "Developed by Trey Davidson and Zach Whitten. All sprites and music developed by Trey Davidson.", False,(0,0,0))
+            win.blit(txt, (10, 680))
         delta_time = 0
 
     if beyond_revealed is True:
-        projectile2_timer -= delta_time
+        projectile2_timer -= (delta_time + 0.05)
         if basic_fish_timer <= 0:
-            basic_fish_timer = 1
+            basic_fish_timer = 5
             side = random.randint(1, 2)
             if side == 1:
-                fish4_list.append(movingObj.MegaBossFish(win, -30, random.randint(30, win_height - 30), 30, side))
+                fish4_list.append(movingObj.MegaBossFish(win, -30, random.randint(30, win_height - 30), 100, side))
             if side == 2:
-                fish4_list.append(movingObj.MegaBossFish(win, win_width + 30, random.randint(30, win_height - 30), 30, side))
+                fish4_list.append(movingObj.MegaBossFish(win, win_width + 30, random.randint(30, win_height - 30), 100, side))
 
         if projectile2_timer <= 0 and len(fish4_list) > 0:
             for M in fish4_list:
@@ -602,7 +610,10 @@ while not done:
 
         for fish in fish4_list:
             P.health = fish.update(delta_time, fish4_list, P.pos.x, P.pos.y, P.radius, P.health)
-            fish.draw()
+            if fish.pos.y < P.pos.y:
+                fish.alt_draw(spews)
+            else:
+                fish.draw(spews)
 
     if title_screen:
         win.blit(title,(0,0))

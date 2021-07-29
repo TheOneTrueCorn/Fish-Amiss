@@ -3,6 +3,7 @@ import random
 import vector
 import pygame
 import math
+import solar_object
 
 class Player:
     def __init__(self, surf):
@@ -26,8 +27,10 @@ class Player:
         self.red_fish_caught = 0
         self.total_fish_caught = 0
         self.proj_list = []
+        self.cooldown = 1
 
-    def handle_input(self, dt, fish1_list,witnessed, fish4_list):
+
+    def handle_input(self, dt, fish1_list,witnessed, fish4_list,sun,moon):
         event = pygame.event.poll()
         keys = pygame.key.get_pressed()
         mpos = pygame.mouse.get_pos()
@@ -63,22 +66,29 @@ class Player:
 
         # you can shoot if endgame is active
         if witnessed is True:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.cooldown -= 2 * dt
+            # first_x = eyes.draw.x
+            # first_y = eyes.draw.y
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.cooldown < 0:
+                self.cooldown = 1
                 mpos_x = mpos[0]
                 mpos_y = mpos[1]
-                init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(self.pos.x, self.pos.y)
-                self.proj_list.append(PlayerShot(self.surf, self.pos.x, self.pos.y, 15, init_vel[0], init_vel[1]))
+                init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(sun.end.x + 80, sun.end.y + 50)
+                init_vel2 = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(moon.end.x + 80, moon.end.y + 50)
+                self.proj_list.append(PlayerShot(self.surf, sun.end.x + 80, sun.end.y + 50, 15, init_vel[0], init_vel[1]))
+                self.proj_list.append(PlayerShot(self.surf, moon.end.x + 80, moon.end.y + 50, 15, init_vel2[0], init_vel2[1]))
 
             for proj in self.proj_list:
                 proj.update(dt, fish4_list)
                 proj.draw()
-                if proj.pos.x >= self.surf.get_width() + proj.radius:
+                pygame.draw.line(self.surf,(random.randint(0,255),random.randint(0,255),random.randint(0,255)),proj.pos,self.pos)
+                if proj.pos.x >= self.surf.get_width() + proj.radius + 200:
                     self.proj_list.remove(proj)
-                if proj.pos.x <= -proj.radius:
+                if proj.pos.x <= -proj.radius - 200:
                     self.proj_list.remove(proj)
-                if proj.pos.y >= self.surf.get_height() + proj.radius:
+                if proj.pos.y >= self.surf.get_height() + proj.radius + 200:
                     self.proj_list.remove(proj)
-                if proj.pos.y <= -proj.radius:
+                if proj.pos.y <= -proj.radius - 200:
                     self.proj_list.remove(proj)
 
         if keys[pygame.K_a]:
@@ -106,14 +116,14 @@ class Player:
         # this code doesn't allow you to go off screen
         if self.pos.x > self.surf.get_width() - self.radius * 2 and witnessed is False:
             self.pos.x = self.surf.get_width() - self.radius * 2
-        elif self.pos.x > self.surf.get_width() - 350 and witnessed is True:
-            self.pos.x = self.surf.get_width() - 350
-        if self.pos.x < 0:
-            self.pos.x = 0
-        if self.pos.y < 0:
-            self.pos.y = 0
-        if self.pos.y > self.surf.get_height() - 260:
-            self.pos.y = self.surf.get_height() - 260
+        elif self.pos.x > self.surf.get_width() - 175 and witnessed is True:
+            self.pos.x = self.surf.get_width() - 175
+        if self.pos.x < 175:
+            self.pos.x = 175
+        if self.pos.y < 130:
+            self.pos.y = 130
+        if self.pos.y > self.surf.get_height() - 130:
+            self.pos.y = self.surf.get_height() - 130
 
     def update(self, flist, money):
         for fish in flist:
@@ -153,7 +163,7 @@ class Player:
         if revel is False:
             self.surf.blit(img,self.pos,self.area)
         else:
-            self.surf.blit(img,(self.pos.x - 170, self.pos.y - 120))
+            self.surf.blit(img,(self.pos.x - 175, self.pos.y - 130))
 
         self.surf.blit(bar_img,(870,10),self.bar_area)
 
@@ -163,16 +173,21 @@ class PlayerShot:
         self.pos = vector.Vector2(x, y)
         self.radius = radius
         self.velocity = vector.Vector2(velx, vely)
+        self.timer = 6
 
     def update(self, dt, Mplist):
         self.pos += self.velocity * dt
         for proj in Mplist:
             dist = distance(proj.pos.x, self.pos.x, proj.pos.y, self.pos.y)
             if dist <= proj.radius + self.radius:
-                Mplist.remove(proj)
+                self.pos = proj.pos
+                self.timer -= dt
+                if self.timer < 0:
+                    Mplist.remove(proj)
+
 
     def draw(self):
-        pygame.draw.circle(self.surf, "green", (self.pos), self.radius)
+        pygame.draw.circle(self.surf, (random.randint(0,255),random.randint(0,255),random.randint(0,255)), (self.pos), self.radius)
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):
@@ -482,8 +497,15 @@ class MegaBossFish:
         return Phealth
 
 
-    def draw(self):
-        pygame.draw.circle(self.surf, "white", (self.pos), self.radius)
+    def draw(self,img):
+        rotated_img = pygame.transform.rotate(img, 350)
+        self.surf.blit(rotated_img,(self.pos.x - 120,self.pos.y -60))
+
+
+    def alt_draw(self,img):
+        rotated_img = pygame.transform.rotate(img, 170)
+        self.surf.blit(rotated_img, (self.pos.x - 120, self.pos.y - 220))
+
 
 class FishProjectile(Player):
     def __init__(self, surf, x, y, radius, side, proj_speed):
@@ -495,7 +517,7 @@ class FishProjectile(Player):
         self.velocity = vector.Vector2(random.randint(-60, 60), 0)
 
     def draw(self):
-        pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+        pygame.draw.circle(self.surf, (255,0,0), (self.pos.x, self.pos.y), self.radius)
 
     def update(self, dt, plist, player_x, player_y, player_rad, player_health, wait):
         # if boss fish is done moving
