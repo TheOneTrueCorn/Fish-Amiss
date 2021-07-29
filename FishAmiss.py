@@ -36,8 +36,8 @@ forbidden_knowledge = pygame.image.load("eldritch foresight.png")
 #sound/music
 # main_theme = "somber ocean.wav"
 pygame.mixer.init()
-pygame.mixer.music.load('somber ocean.wav')
-pygame.mixer.music.play(-1)
+# pygame.mixer.music.load('somber ocean.wav')
+# pygame.mixer.music.play(-1)
 
 time = "day"
 
@@ -171,9 +171,6 @@ MegaBosses = 0
 beyond_revealed = False
 total_cannon_kills = 0
 
-
-
-
 # quests
 completed = True
 completed_quests = []
@@ -197,8 +194,8 @@ check = False
 music_timer = 0
 cp = 0
 quest_marker = False
+time_survived = 0
 while not done:
-
     mpos = pygame.mouse.get_pos()
     keys = pygame.key.get_pressed()
     if P.health > 0:
@@ -219,17 +216,18 @@ while not done:
         delta_time = 0
 
     music_timer += 1 * delta_time
+    time_survived += 1 * delta_time
     if beyond_revealed and music_timer >= 31:
         music_timer = 0
-        pygame.mixer.music.load("amalgamation of waste.wav")
-        pygame.mixer.music.play()
-
+        # pygame.mixer.music.load("amalgamation of waste.wav")
+        # pygame.mixer.music.play()
+########################################################        MUSIC
     basic_fish_timer -= delta_time
     day_bonus_timer -= delta_time
 
     if day_bonus_timer <= 0 and not beyond_revealed:
-        money += 100
-        P.health += 20
+        money += 40
+        P.health += 10
         day_bonus_timer = 60
 
     if beyond_revealed is False:
@@ -265,8 +263,7 @@ while not done:
             if day % 2 == 0 and len(fish3_list) < day / 2 and Bosses < day:
                 for i in range(int(day / 2)):
                     Bosses += 2
-                    B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
-                    fish3_list.append(B)
+                    fish3_list.append(B := movingObj.BossFish(win, random.randint(200, win_width - 200), win_height + 80, 80, side))
                     boss_fish = True
             if day % 2 != 0:
                 Bosses = 0
@@ -295,8 +292,6 @@ while not done:
         for fish in fish3_list:
             fish.draw(hook_wurm)
             fish.update(delta_time, fish1_list)
-            # fish.draw(hook_wurm)
-            # fish.update(delta_time, fish3_list)
 
     for cannon in cannon_list:
         cannon.draw()
@@ -350,7 +345,7 @@ while not done:
     if boss_fish == True:
         projectile_timer -= delta_time
 
-        if projectile_timer <= 0 and B.moving == False and len(fish3_list) > 0:
+        if projectile_timer <= 0 and B.moving is False and len(fish3_list) > 0:
             for B in fish3_list:
                 lunaris_plist.append(movingObj.FishProjectile(win, B.pos.x, B.pos.y, 10, 0, 10))
                 lunaris_plist.append(movingObj.FishProjectile(win, B.pos.x, B.pos.y, 10, 0, 10))
@@ -418,26 +413,26 @@ while not done:
         menu = pygame.Surface((700, 500))
         menu.fill((0, 0, 0))
         win.blit(menu, (win_width / 2 - 350, win_height / 2 - 250))
-        txt = font_obj2.render("Information Screen", False, (255, 255, 255))
-        win.blit(txt, (400, 105))
+        txt = font_obj2.render("Information", False, (255, 255, 255))
+        win.blit(txt, (450, 105))
         txt = font_obj2.render("Return to Game: [U]", False, (255, 255, 255))
-        win.blit(txt, (170, 140))
+        win.blit(txt, (400, 145))
         txt = font_obj2.render("Fishing Rod: Right Click to Charge, Release to Throw", False, (255, 255, 255))
-        win.blit(txt, (170, 180))
-        txt = font_obj2.render("Lower/Raise Fish Hook: Scroll Button", False, (255, 255, 255))
         win.blit(txt, (170, 220))
-        txt = font_obj2.render("Catch Fish: Press Cooresponding Fish Key that Appears", False, (255, 255, 255))
+        txt = font_obj2.render("Lower/Raise Fish Hook: Scroll Button", False, (255, 255, 255))
         win.blit(txt, (170, 260))
-        txt = font_obj2.render("Possible Fish Keys: [W], [E], [R], [T], [F], [S]", False, (255, 255, 255))
+        txt = font_obj2.render("Catch Fish: Press Cooresponding Fish Key that Appears", False, (255, 255, 255))
         win.blit(txt, (170, 300))
-        txt = font_obj2.render("Move Left/Right: [A] (left), [D] (right)", False, (255, 255, 255))
+        txt = font_obj2.render("Possible Fish Keys: [W], [E], [R], [T], [F], [S]", False, (255, 255, 255))
         win.blit(txt, (170, 340))
-        txt = font_obj2.render("Purchase Item: Press Cooresponding Key in Shop Window", False, (255, 255, 255))
+        txt = font_obj2.render("Move Left/Right: [A] (left), [D] (right)", False, (255, 255, 255))
         win.blit(txt, (170, 380))
-        txt = font_obj2.render("Retract Bobber: [Spacebar]", False, (255, 255, 255))
+        txt = font_obj2.render("Purchase Item: Press Cooresponding Key in Shop Window", False, (255, 255, 255))
         win.blit(txt, (170, 420))
-        txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
+        txt = font_obj2.render("Retract Bobber: [Spacebar]", False, (255, 255, 255))
         win.blit(txt, (170, 460))
+        txt = font_obj2.render("Your Goal: Survive", False, (255, 255, 255))
+        win.blit(txt, (170, 500))
 
     if quest1 is not completed:
         if total_fish_caught >= 3:
@@ -490,7 +485,6 @@ while not done:
             pygame.draw.rect(win, "yellow", (595, 15, 3, 8))
             pygame.draw.rect(win, "yellow", (595, 27, 3, 3))
 
-
     # quest menu
     if quest_menu:
         menu = pygame.Surface((700, 500))
@@ -499,7 +493,7 @@ while not done:
         txt = font_obj2.render("Quests", False, (255, 255, 255))
         win.blit(txt, (450, 105))
         txt = font_obj2.render("Return to Game: [U]", False, (255, 255, 255))
-        win.blit(txt, (170, 140))
+        win.blit(txt, (370, 140))
 
         if quest1 is completed:
             quest1_txt = font_obj2.render("Catch 3 Fish: $30", False, (0, 255, 0))
@@ -561,10 +555,10 @@ while not done:
             txtx = font_obj3.render("Return to Game: [U]", False, (255, 255, 255))
             win.blit(txtx, (400, 600))
             txtxt = font_obj3.render("(up/down movement enabled by w and s. left click to fire)",False,(255,255,255))
-            win.blit((txtxt),(200,650))
+            win.blit((txtxt),(220,650))
             music_timer = 30.75
             beyond_revealed = True
-            win.blit(quest10_txt, (350, 340))
+            win.blit(quest10_txt, (380, 340))
 
         else:
             quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO ASCEND", False, (255, 0, 0))
@@ -601,19 +595,22 @@ while not done:
         win.blit(txt, (320, 350))
         txt = font_obj.render("Total Cash Earned: " + str(money + (oranges * 150) + (cannons * 70) + (harpoons * 250)), False, (0, 0, 0))
         win.blit(txt, (320, 400))
+        txt = font_obj.render("Time Alive: " + str(round(time_survived, 1)) + " Seconds",
+                              False, (0, 0, 0))
+        win.blit(txt, (320, 450))
         if beyond_revealed is True:
             txt = font_obj.render("You Have Seen the Great Beyond...", False, (0, 0, 0))
             win.blit(txt, (270, 500))
             txt = font_obj.render("Thanks for Playing! :D", False, (0,0,0))
-            win.blit(txt, (270, 550))
+            win.blit(txt, (320, 550))
             txt = font_obj3.render("Developed by Trey Davidson and Zach Whitten. All sprites and music developed by Trey Davidson.",False,(0,0,0))
-            win.blit(txt,(10,680))
+            win.blit(txt,(80,680))
         else:
             txt = font_obj.render("Your Quest for the Truth Sank with Your Boat...", False, (0, 0, 0))
             win.blit(txt, (160, 500))
             txt = font_obj3.render(
                 "Developed by Trey Davidson and Zach Whitten. All sprites and music developed by Trey Davidson.", False,(0,0,0))
-            win.blit(txt, (10, 680))
+            win.blit(txt, (80, 680))
         delta_time = 0
 
     if beyond_revealed is True:

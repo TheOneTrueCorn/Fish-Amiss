@@ -17,7 +17,7 @@ class Player:
         self.area = (0,0,87,90)
         self.bar_area = (0,0,130,70)
         self.frame = 0
-        self.health = 100
+        self.health = 1000
         self.harpoons = 1
         self.harpoon_is_active = False
         self.init_vel = 0
@@ -410,7 +410,7 @@ class BossFish(Player):
         self.fish_speed = 60
         self.moving = True
         self.proj_list = []
-        self.health = 1
+        self.health = 4
         self.defeated = False
 
     def update(self, dt, fish_list):
@@ -422,29 +422,20 @@ class BossFish(Player):
         if self.pos.y <= self.surf.get_height() - 200:
             self.pos.y = self.surf.get_height() - 200
             self.moving = False
-        # if self.side == 1:
-        #     self.pos.x += self.fish_speed * dt
-            # if self.type == 1:
-            #     self.area = (0,0,78,75)
-            # else:
-            #     self.area = (85, 0, 85, 75)
-        # side is 2 (right screen), move left
-        # if self.side == 2:
-        #     self.pos.x += -(self.fish_speed * dt)
-            # if self.type == 1:
-            #     self.area = (78,70,90,80)
-            # else:
-            #     self.area = (0, 70, 90, 80)
-
-        # for fish in fish_list:
-        #     if fish.pos.x > self.surf.get_width() + 2 * fish.radius:
-        #         fish_list.remove(fish)
-        #     if fish.pos.x < -(2 * fish.radius):
-        #         fish_list.remove(fish)
 
     def draw(self,img):
-       # pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
-       self.surf.blit(img,(self.pos.x - 170,self.pos.y - 100),(0,60,400,600))
+        self.surf.blit(img, (self.pos.x - 170, self.pos.y - 100), (0, 60, 400, 600))
+        if self.health > 0:
+            pygame.draw.rect(self.surf, "white", (self.pos.x, self.pos.y + 100, 70, 15))
+        if self.health == 4:
+            pygame.draw.rect(self.surf, "red", (self.pos.x + 3, self.pos.y + 102, 65, 10))
+        elif self.health == 3:
+            pygame.draw.rect(self.surf, "red", (self.pos.x + 3, self.pos.y + 102, 48, 10))
+        elif self.health == 2:
+            pygame.draw.rect(self.surf, "red", (self.pos.x + 3, self.pos.y + 102, 33, 10))
+        elif self.health == 1:
+            pygame.draw.rect(self.surf, "red", (self.pos.x + 3, self.pos.y + 102, 18, 10))
+
 
 class MegaBossFish:
     def __init__(self, surf, x, y, radius, side):
