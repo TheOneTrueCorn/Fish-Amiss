@@ -176,7 +176,7 @@ total_cannon_kills = 0
 
 # quests
 completed = True
-completed_quests = 0
+completed_quests = []
 unlocked = True
 quest_menu = False
 quest1 = False
@@ -193,8 +193,10 @@ angler_caught = 0
 shark_caught = 0
 big_fish_caught = 0
 fish_during_boss = 0
-
+check = False
 music_timer = 0
+cp = 0
+quest_marker = False
 while not done:
 
     mpos = pygame.mouse.get_pos()
@@ -204,6 +206,7 @@ while not done:
         paused = True
     if keys[pygame.K_q] and paused == False and quest_menu == False:
         quest_menu = True
+        quest_marker = False
     if keys[pygame.K_u] and paused == True:
         paused = False
         title_screen = False
@@ -300,13 +303,15 @@ while not done:
         if quest9 is not completed:
             if cannon_kills >= 3:
                 quest9 = completed
-                completed_quests += 1
+                completed_quests.append(1)
+                quest_marker = True
                 money += 150
 
         if quest4 is not completed:
             if boss_kills >= 1:
                 quest4 = completed
-                completed_quests += 1
+                completed_quests.append(1)
+                quest_marker = True
                 money += 150
 
     for harp in harpoon_list:
@@ -317,20 +322,26 @@ while not done:
             if quest5 is not completed:
                 if angler_caught > 0:
                     quest5 = completed
-                    completed_quests += 1
+                    cp += 1
+                    completed_quests.append(cp)
+                    quest_marker = True
                     money += 150
 
         if shark_caught is not None:
             if quest6 is not completed:
                 if shark_caught > 0:
                     quest6 = completed
-                    completed_quests += 1
+                    cp += 1
+                    completed_quests.append(cp)
+                    quest_marker = True
                     money += 150
 
         if quest7 is not completed:
             if total_fish_caught > 2:
                 quest7 = completed
-                completed_quests += 1
+                cp += 1
+                completed_quests.append(cp)
+                quest_marker = True
                 money += 75
 
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
@@ -429,32 +440,51 @@ while not done:
     if quest1 is not completed:
         if total_fish_caught >= 3:
             quest1 = completed
-            completed_quests += 1
+            cp += 1
+            completed_quests.append(cp)
+            quest_marker = True
             money += 30
 
     if quest2 is not completed:
         if orange_fish_caught >= 5:
             quest2 = completed
-            completed_quests += 1
+            cp += 1
+            completed_quests.append(cp)
+            quest_marker = True
             money += 60
 
     if quest3 is not completed:
         if red_fish_caught >= 5:
             quest3 = completed
-            completed_quests += 1
+            cp += 1
+            completed_quests.append(cp)
+            quest_marker = True
             money += 60
 
     if quest8 is not completed:
-        if oranges >= 4:
+        if oranges >= 1:
             quest8 = completed
-            completed_quests += 1
+            cp += 1
+            completed_quests.append(cp)
+            quest_marker = True
             money += 60
 
     if quest10 is not unlocked:
-        if completed_quests == 9:
+        if len(completed_quests) == 9:
             quest10 = unlocked
 
-    #completed_quests = 9
+    # for i in range(9):
+    #     completed_quests.append(1)
+
+    # Creates a yellow icon next to quests if you complete one
+    if quest_menu is not True:
+        for i in completed_quests:
+            if i > 0 and keys[pygame.K_q]:
+                quest_marker = False
+
+        if quest_marker is True:
+            pygame.draw.rect(win, "yellow", (595, 15, 3, 8))
+            pygame.draw.rect(win, "yellow", (595, 27, 3, 3))
 
     # quest menu
     if quest_menu:
@@ -522,7 +552,7 @@ while not done:
 
         if quest10 is unlocked:
             win.fill((0, 0, 0))
-            quest10_txt = font_obj2.render("DEFEAT THE AWAKENED ONE", False, (255, 0, 0))
+            quest10_txt = font_obj2.render("DEFEND YOUR THRONE", False, (255, 0, 0))
             txtx = font_obj3.render("Return to Game: [U]", False, (255, 255, 255))
             win.blit(txtx, (400, 600))
             music_timer = 30.75
@@ -530,7 +560,7 @@ while not done:
             win.blit(quest10_txt, (350, 340))
 
         else:
-            quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO UNLOCK", False, (255, 0, 0))
+            quest10_txt = font_obj2.render("COMPLETE ALL PREVIOUS QUESTS TO ASCEND", False, (255, 0, 0))
             win.blit(quest10_txt, (170, 540))
 
     if beyond_revealed is False:

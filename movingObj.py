@@ -560,7 +560,7 @@ class Harpoon:
 
         for fish in fish1_list:
             dist = distance(fish.pos.x, self.pos.x, fish.pos.y, self.pos.y)
-            if dist <= fish.radius + self.radius:
+            if dist <= fish.radius + self.radius and fish.caught is not True:
                 fish.pos = self.pos
                 if self.direction == "Up":
                     if fish.pos.y <= 275:
