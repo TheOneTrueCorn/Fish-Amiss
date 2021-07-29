@@ -118,7 +118,9 @@ class Player:
             self.pos.x = self.surf.get_width() - self.radius * 2
         elif self.pos.x > self.surf.get_width() - 175 and witnessed is True:
             self.pos.x = self.surf.get_width() - 175
-        if self.pos.x < 175:
+        if self.pos.x < 0 and witnessed is False:
+            self.pos.x = 0
+        elif self.pos.x < 175 and witnessed is True:
             self.pos.x = 175
         if self.pos.y < 130:
             self.pos.y = 130
@@ -582,7 +584,7 @@ class Harpoon:
 
         for fish in fish1_list:
             dist = distance(fish.pos.x, self.pos.x, fish.pos.y, self.pos.y)
-            if dist <= fish.radius + self.radius:
+            if dist <= fish.radius + self.radius and fish.caught is not True:
                 fish.pos = self.pos
                 if self.direction == "Up":
                     if fish.pos.y <= 275:
@@ -677,7 +679,7 @@ class MegaFishProjectile(Player):
         self.velocity = vector.Vector2(random.randint(-60, 60), random.randint(-60, 60))
 
     def draw(self):
-        pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+        pygame.draw.circle(self.surf, (200,50,200), (self.pos.x, self.pos.y), self.radius)
 
     def update(self, dt, plist, player_x, player_y, player_rad, player_health, wait):
         # if boss fish is done moving
