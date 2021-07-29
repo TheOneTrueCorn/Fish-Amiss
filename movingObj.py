@@ -104,10 +104,16 @@ class Player:
                 fish.caught = False
 
         # this code doesn't allow you to go off screen
-        if self.pos.x > self.surf.get_width() - self.radius * 2:
+        if self.pos.x > self.surf.get_width() - self.radius * 2 and witnessed is False:
             self.pos.x = self.surf.get_width() - self.radius * 2
+        elif self.pos.x > self.surf.get_width() - 350 and witnessed is True:
+            self.pos.x = self.surf.get_width() - 350
         if self.pos.x < 0:
             self.pos.x = 0
+        if self.pos.y < 0:
+            self.pos.y = 0
+        if self.pos.y > self.surf.get_height() - 260:
+            self.pos.y = self.surf.get_height() - 260
 
     def update(self, flist, money):
         for fish in flist:
