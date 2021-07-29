@@ -139,6 +139,7 @@ money = 1000
 day = 1
 basic_fish_timer = 1
 projectile_timer = 1
+projectile2_timer = 1
 day_bonus_timer = 60
 shop_timer = 3
 fish_count = 1
@@ -147,7 +148,9 @@ boss_fish = False
 fish1_list = []
 fish2_list = []
 fish3_list = []
+fish4_list = []
 lunaris_plist = []
+MegaBoss_plist = []
 cannon_list = []
 harpoon_list = []
 cash_list = []
@@ -164,6 +167,7 @@ harpoons = 0
 done = False
 harpoon_active = False
 Bosses = 0
+MegaBosses = 0
 beyond_revealed = False
 total_cannon_kills = 0
 
@@ -191,7 +195,6 @@ big_fish_caught = 0
 fish_during_boss = 0
 
 music_timer = 0
-
 while not done:
 
     mpos = pygame.mouse.get_pos()
@@ -225,43 +228,45 @@ while not done:
         P.health += 20
         day_bonus_timer = 60
 
-    # spawn fishies!
-    if basic_fish_timer <= 0:
-        basic_fish_timer = 1
-        side = random.randint(1, 2)
-        qte_key += 1
-        fish_count += 1
-        if qte_key > 6:
-            qte_key = 1
-        # if side is 1, spawn on left side of screen
-        if side == 1:
-            if len(fish1_list) < 10:
-                fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side, qte_key))
+    if beyond_revealed is False:
+        # spawn feeesh  if endgame is not unlocked
+        if basic_fish_timer <= 0:
+            basic_fish_timer = 1
+            side = random.randint(1, 2)
+            qte_key += 1
+            fish_count += 1
+            if qte_key > 6:
+                qte_key = 1
+            # if side is 1, spawn on left side of screen
+            if side == 1:
+                if len(fish1_list) < 10:
+                    fish1_list.append(movingObj.BoringFish(win, -20, random.randint(300, win_height), 20, side, qte_key))
 
-            if fish_count == 10:
-                fish2_list.append(
-                    movingObj.BiggerFish(win, -40, random.randint(550, win_height), 40, side, qte_key))
-                fish_count = 1
+                if fish_count == 10:
+                    fish2_list.append(
+                        movingObj.BiggerFish(win, -40, random.randint(550, win_height), 40, side, qte_key))
+                    fish_count = 1
 
-        # if side is 2, spawn on right side of screen
-        elif side == 2:
-            if len(fish1_list) < 10:
-                fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height - 20), 20, side, qte_key))
+            # if side is 2, spawn on right side of screen
+            elif side == 2:
+                if len(fish1_list) < 10:
+                    fish1_list.append(movingObj.BoringFish(win, win_width + 20, random.randint(300, win_height - 20), 20, side, qte_key))
 
-            if fish_count == 10:
-                fish2_list.append(
-                    movingObj.BiggerFish(win, win_width + 40, random.randint(550, win_height - 40), 40, side, qte_key))
-                fish_count = 1
+                if fish_count == 10:
+                    fish2_list.append(
+                        movingObj.BiggerFish(win, win_width + 40, random.randint(550, win_height - 40), 40, side, qte_key))
+                    fish_count = 1
 
-        # boss fish spawn
-        if day % 2 == 0 and len(fish3_list) < day / 2 and Bosses < day:
-            for i in range(int(day / 2)):
-                Bosses += 2
-                B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
-                fish3_list.append(B)
-                boss_fish = True
-        if day % 2 != 0:
-            Bosses = 0
+            # boss fish spawn
+            if day % 2 == 0 and len(fish3_list) < day / 2 and Bosses < day:
+                for i in range(int(day / 2)):
+                    Bosses += 2
+                    B = movingObj.BossFish(win, random.randint(300, win_width - 300), win_height + 80, 80, side)
+                    fish3_list.append(B)
+                    boss_fish = True
+            if day % 2 != 0:
+                Bosses = 0
+
 
     win.fill((random.randint(0,20),random.randint(0,20),random.randint(0,20)))
     day_night(beyond_revealed)
@@ -350,7 +355,7 @@ while not done:
     #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     money, total_fish_caught, orange_fish_caught, red_fish_caught = P.update(fish1_list, money)
-    done = P.handle_input(delta_time, fish1_list,beyond_revealed)
+    done = P.handle_input(delta_time, fish1_list,beyond_revealed, fish4_list)
 
     if P.health > 100:
         P.health = 100
@@ -445,9 +450,11 @@ while not done:
             completed_quests += 1
             money += 60
 
-    if completed_quests == 9:
-        quest10 = unlocked
-    completed_quests = 9
+    if quest10 is not unlocked:
+        if completed_quests == 9:
+            quest10 = unlocked
+
+    #completed_quests = 9
 
     # quest menu
     if quest_menu:
@@ -468,13 +475,13 @@ while not done:
         if quest2 is completed:
             quest2_txt = font_obj2.render("Catch 5 Orange Fish: $60", False, (0, 255, 0))
         else:
-            quest2_txt = font_obj2.render("Catch 5 Orange Fish: $60 --- " + str(int(orange_fish_caught)) + " caught so far", False, (255, 255, 255))
+            quest2_txt = font_obj2.render("Catch 5 Orange Fish: $60 --- " + str(int(orange_fish_caught)) + " Caught so Far", False, (255, 255, 255))
         win.blit(quest2_txt, (170, 220))
 
         if quest3 is completed:
             quest3_txt = font_obj2.render("Catch 5 Red Fish: $60", False, (0, 255, 0))
         else:
-            quest3_txt = font_obj2.render("Catch 5 Red Fish: $60 --- " + str(int(red_fish_caught)) + " caught so far", False, (255, 255, 255))
+            quest3_txt = font_obj2.render("Catch 5 Red Fish: $60 --- " + str(int(red_fish_caught)) + " Caught so Far", False, (255, 255, 255))
         win.blit(quest3_txt, (170, 260))
 
         if quest4 is completed:
@@ -533,24 +540,68 @@ while not done:
 
     # lost screen
     if P.health <= 0:
+        if beyond_revealed is True:
+            for i in fish4_list:
+                fish4_list.remove(i)
+            for i in MegaBoss_plist:
+                MegaBoss_plist.remove(i)
         lose_screen = pygame.Surface((win_width, win_height))
-        lose_screen.fill((255, 0, 0))
+        lose_screen.fill((200, 0, 0))
         win.blit(lose_screen, (0, 0))
-        txt = font_obj.render("Your boat was destroyed", False, (0, 0, 0))
-        win.blit(txt, (340, 200))
+        txt = font_obj.render("You Were Destroyed", False, (0, 0, 0))
+        win.blit(txt, (320, 100))
         txt = font_obj.render("Days Survived: " + str(day), False, (0, 0, 0))
-        win.blit(txt, (340, 250))
-        txt = font_obj.render("Fish caught: " + str(total_fish_caught), False, (0, 0, 0))
-        win.blit(txt, (340, 300))
+        win.blit(txt, (320, 150))
+        txt = font_obj.render("Fish Caught: " + str(total_fish_caught), False, (0, 0, 0))
+        win.blit(txt, (320, 200))
         txt = font_obj.render("Oranges Purchased: " + str(oranges), False, (0, 0, 0))
-        win.blit(txt, (340, 350))
+        win.blit(txt, (320, 250))
         txt = font_obj.render("Cannons Purchased: " + str(cannons), False, (0, 0, 0))
-        win.blit(txt, (340, 400))
+        win.blit(txt, (320, 300))
         txt = font_obj.render("Harpoons Purchased: " + str(harpoons), False, (0, 0, 0))
-        win.blit(txt, (340, 450))
+        win.blit(txt, (320, 350))
         txt = font_obj.render("Total Cash Earned: " + str(money + (oranges * 150) + (cannons * 70) + (harpoons * 250)), False, (0, 0, 0))
-        win.blit(txt, (340, 550))
+        win.blit(txt, (320, 400))
+        if beyond_revealed is True:
+            txt = font_obj.render("You Have Seen the Great Beyond...", False, (0, 0, 0))
+            win.blit(txt, (270, 500))
+            txt = font_obj.render("Thanks for Playing! :D", False, (0, 0, 0))
+            win.blit(txt, (270, 550))
+        else:
+            txt = font_obj.render("Your Quest for the Truth Sank with Your Boat...", False, (0, 0, 0))
+            win.blit(txt, (160, 500))
         delta_time = 0
+
+    if beyond_revealed is True:
+        projectile2_timer -= delta_time
+        if basic_fish_timer <= 0:
+            basic_fish_timer = 1
+            side = random.randint(1, 2)
+            if side == 1:
+                fish4_list.append(movingObj.MegaBossFish(win, -30, random.randint(30, win_height - 30), 30, side))
+            if side == 2:
+                fish4_list.append(movingObj.MegaBossFish(win, win_width + 30, random.randint(30, win_height - 30), 30, side))
+
+        if projectile2_timer <= 0 and len(fish4_list) > 0:
+            for M in fish4_list:
+                MegaBoss_plist.append(movingObj.MegaFishProjectile(win, M.pos.x, M.pos.y, 10, 10))
+                MegaBoss_plist.append(movingObj.MegaFishProjectile(win, M.pos.x, M.pos.y, 10, 10))
+            projectile2_timer = 2
+
+        for proj in MegaBoss_plist:
+            proj.draw()
+            if len(fish4_list) > 0:
+                P.health = proj.update(delta_time, MegaBoss_plist, P.pos.x, P.pos.y, P.radius, P.health,
+                                       fish4_list[0].moving)
+            else:
+                proj.pos.y += 50 * delta_time
+                if proj.pos.y >= win_height + proj.radius:
+                    MegaBoss_plist.remove(proj)
+
+
+        for fish in fish4_list:
+            P.health = fish.update(delta_time, fish4_list, P.pos.x, P.pos.y, P.radius, P.health)
+            fish.draw()
 
     if title_screen:
         win.blit(title,(0,0))

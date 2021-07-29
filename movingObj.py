@@ -25,8 +25,9 @@ class Player:
         self.orange_fish_caught = 0
         self.red_fish_caught = 0
         self.total_fish_caught = 0
+        self.proj_list = []
 
-    def handle_input(self, dt, fish1_list,witnessed):
+    def handle_input(self, dt, fish1_list,witnessed, fish4_list):
         event = pygame.event.poll()
         keys = pygame.key.get_pressed()
         mpos = pygame.mouse.get_pos()
@@ -38,19 +39,6 @@ class Player:
         if event.type == pygame.QUIT:
             done = True
             return done
-
-        # if self.harpoons > 0:
-        #     if event.type == pygame.MOUSEBUTTONDOWN:
-        #         self.init_vel = vector.Vector2(mpos[0], mpos[1]) - vector.Vector2(self.pos.x, self.pos.y)
-        #         self.harpoon_is_active = True
-        #         self.harpoons -= 1
-        #         self.harpx = self.pos.x
-        #         self.harpy = self.pos.y
-        #
-        # if self.harpoon_is_active:
-        #     H = Harpoon(self.surf, mpos[0], mpos[1],  self.init_vel.x, self.init_vel.y, self.harpx, self.harpy)
-        #     H.update(dt)
-        #     H.draw()
 
         # if clicking, draw a line from boat to mouse pos
         if mbuttons[2] and self.casting is not True and witnessed is False:
@@ -73,8 +61,27 @@ class Player:
             self.pos.x += self.speed * dt
             self.frame += 1 * dt
 
+        # you can shoot if endgame is active
+        if witnessed is True:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mpos_x = mpos[0]
+                mpos_y = mpos[1]
+                init_vel = vector.Vector2(mpos_x, mpos_y) - vector.Vector2(self.pos.x, self.pos.y)
+                self.proj_list.append(PlayerShot(self.surf, self.pos.x, self.pos.y, 15, init_vel[0], init_vel[1]))
 
-        if keys[pygame.K_a]:# and self.casting != True:
+            for proj in self.proj_list:
+                proj.update(dt, fish4_list)
+                proj.draw()
+                if proj.pos.x >= self.surf.get_width() + proj.radius:
+                    self.proj_list.remove(proj)
+                if proj.pos.x <= -proj.radius:
+                    self.proj_list.remove(proj)
+                if proj.pos.y >= self.surf.get_height() + proj.radius:
+                    self.proj_list.remove(proj)
+                if proj.pos.y <= -proj.radius:
+                    self.proj_list.remove(proj)
+
+        if keys[pygame.K_a]:
             self.pos.x -= self.speed * dt
             self.frame += 1 * dt
 
@@ -135,13 +142,31 @@ class Player:
                 self.frame = 0
                 # self.bar_area = (145, -3, 140, 70)
 
-        for hp in range(self.health):
+        for hp in range(int(self.health)):
             pygame.draw.rect(self.surf,(100,255,200),(879 + (hp * 0.95),31,1,10))
-        if not revel:
+        if revel is False:
             self.surf.blit(img,self.pos,self.area)
         else:
-            self.surf.blit(img,self.pos)
+            self.surf.blit(img,(self.pos.x - 170, self.pos.y - 120))
+
         self.surf.blit(bar_img,(870,10),self.bar_area)
+
+class PlayerShot:
+    def __init__(self, surf, x, y, radius, velx, vely):
+        self.surf = surf
+        self.pos = vector.Vector2(x, y)
+        self.radius = radius
+        self.velocity = vector.Vector2(velx, vely)
+
+    def update(self, dt, Mplist):
+        self.pos += self.velocity * dt
+        for proj in Mplist:
+            dist = distance(proj.pos.x, self.pos.x, proj.pos.y, self.pos.y)
+            if dist <= proj.radius + self.radius:
+                Mplist.remove(proj)
+
+    def draw(self):
+        pygame.draw.circle(self.surf, "green", (self.pos), self.radius)
 
 class Bobber:
     def __init__(self, x, y, vel_x, vel_y, radius):
@@ -398,6 +423,62 @@ class BossFish(Player):
        # pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
        self.surf.blit(img,(self.pos.x - 170,self.pos.y - 100),(0,60,400,600))
 
+class MegaBossFish:
+    def __init__(self, surf, x, y, radius, side):
+        self.side = side
+        self.surf = surf
+        self.pos = vector.Vector2(x, y)
+        self.radius = radius
+        self.fish_speed = 200
+        self.moving = True
+        self.proj_list = []
+        self.health = 1
+        self.defeated = False
+        self.in_bounds = False
+        if self.side == 1:
+            self.flipped = False
+        else:
+            self.flipped = True
+
+    def update(self, dt, fish_list, Px, Py, Pradius, Phealth):
+        if self.side == 1:
+            if self.pos.x > self.radius - 1:
+                self.in_bounds = True
+            if self.flipped is False:
+                self.pos.x += self.fish_speed * dt
+            if self.flipped is True:
+                self.pos.x -= self.fish_speed * dt
+
+            if self.pos.x >= self.surf.get_width() - self.radius + 1:
+                self.flipped = not self.flipped
+
+            if self.pos.x < self.radius - 1 and self.in_bounds is True:
+                self.flipped = not self.flipped
+
+        if self.side == 2:
+            if self.pos.x < self.surf.get_width() - self.radius + 1:
+                self.in_bounds = True
+            if self.flipped is False:
+                self.pos.x += self.fish_speed * dt
+            if self.flipped is True:
+                self.pos.x -= self.fish_speed * dt
+
+            if self.pos.x >= self.surf.get_width() - self.radius + 1 and self.in_bounds is True:
+                self.flipped = not self.flipped
+
+            if self.pos.x < self.radius - 1:
+                self.flipped = not self.flipped
+
+        for fish in fish_list:
+            dist = distance(fish.pos.x, Px, fish.pos.y, Py)
+            if dist <= fish.radius + Pradius:
+                Phealth -= 10 * dt
+        return Phealth
+
+
+    def draw(self):
+        pygame.draw.circle(self.surf, "white", (self.pos), self.radius)
+
 class FishProjectile(Player):
     def __init__(self, surf, x, y, radius, side, proj_speed):
         super().__init__(surf)
@@ -437,13 +518,6 @@ class FishProjectile(Player):
     def proj_path(self, dt):
         self.pos.y -= self.proj_speed * dt
         self.pos.x += self.velocity.x * dt
-        # if len(plist) % 2 == 0:
-        #     # make x right
-        #     self.pos.x += self.velocity.x * dt
-        # if len(plist) % 2 > 0:
-        #     # make x left
-        #     self.pos.x -= self.velocity.x * dt
-        #self.pos.x -= self.velocity * dt
 
 class Harpoon:
     def __init__(self, surf, hx, hy, velx, vely):
@@ -564,6 +638,46 @@ class Cannon:
 
     def draw(self):
         pygame.draw.circle(self.surf, (60, 60, 60), (self.pos), self.radius)
+
+
+class MegaFishProjectile(Player):
+    def __init__(self, surf, x, y, radius, proj_speed):
+        super().__init__(surf)
+        self.pos = vector.Vector2(x, y)
+        self.proj_speed = proj_speed
+        self.radius = radius
+        self.velocity = vector.Vector2(random.randint(-60, 60), random.randint(-60, 60))
+
+    def draw(self):
+        pygame.draw.circle(self.surf, "white", (self.pos.x, self.pos.y), self.radius)
+
+    def update(self, dt, plist, player_x, player_y, player_rad, player_health, wait):
+        # if boss fish is done moving
+        for proj in plist:
+            proj.proj_path(dt)
+
+            if proj.pos.y <= -player_rad:
+                plist.remove(proj)
+            if proj.pos.y >= self.surf.get_height() + player_rad:
+                plist.remove(proj)
+            if proj.pos.x <= -player_rad:
+                plist.remove(proj)
+            if proj.pos.x >= self.surf.get_width() + player_rad:
+                plist.remove(proj)
+
+            # check distance from projectile to player
+            x_diff = proj.pos.x - player_x - player_rad
+            y_diff = proj.pos.y - player_y - 10
+            distance = (x_diff ** 2 + y_diff ** 2) ** 0.5
+            if distance <= proj.radius + player_rad:
+                plist.remove(proj)
+                # player loses some health
+                player_health -= 10
+                return player_health
+        return player_health
+
+    def proj_path(self, dt):
+            self.pos += self.velocity * dt
 
 def distance(x1, x2, y1, y2):
     x_diff = x1 - x2
